@@ -1,0 +1,93 @@
+{
+  "name": "@paymo/active-window",
+  "version": "0.1.0",
+  "description": "NodeJS library using native modules to get the active window and some metadata (including the application icon) on Windows, MacOS and Linux.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run clean && tsc",
+    "build:gyp": "node-gyp configure && node-gyp build",
+    "clean": "node-gyp clean && rimraf dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "esw --color --ext .ts src",
+    "lint:fix": "esw --color --fix --ext .ts src",
+    "lint:watch": "esw --color --fix --watch --cache --ext .ts src",
+    "format": "prettier --write src",
+    "release": "standard-version",
+    "release:pre": "standard-version --prerelease"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.paymoapp.com:gergo/node-active-window.git"
+  },
+  "keywords": [
+    "node",
+    "native",
+    "active",
+    "window"
+  ],
+  "author": "Paymo SRL",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@types/node": "^17.0.35",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-watch": "^8.0.0",
+    "fs-extra": "^10.1.0",
+    "node-fetch": "^3.2.4",
+    "node-gyp": "^9.0.0",
+    "prettier": "^2.6.2",
+    "rimraf": "^3.0.2",
+    "standard-version": "^9.5.0",
+    "typedoc": "^0.22.15",
+    "typedoc-plugin-markdown": "^3.12.1",
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "node-addon-api": "^5.0.0"
+  },
+  "standard-version": {
+    "scripts": {
+      "prerelease": "git fetch --all --tags"
+    },
+    "types": [
+      {
+        "type": "feat",
+        "section": "Features"
+      },
+      {
+        "type": "fix",
+        "section": "Bug Fixes"
+      },
+      {
+        "type": "imp",
+        "section": "Improvements"
+      },
+      {
+        "type": "ci",
+        "section": "Build/CI"
+      },
+      {
+        "type": "chore",
+        "hidden": true
+      },
+      {
+        "type": "docs",
+        "section": "Documentation"
+      },
+      {
+        "type": "refactor",
+        "section": "Refactor"
+      },
+      {
+        "type": "test",
+        "section": "Testing"
+      }
+    ]
+  }
+}
