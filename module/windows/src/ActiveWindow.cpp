@@ -36,6 +36,9 @@ namespace PaymoActiveWindow {
 			info->application = info->path.substr(lastSlash + 1);
 		}
 
+		// close process handle
+		CloseHandle(hProc);
+
 		return info;
 	}
 
