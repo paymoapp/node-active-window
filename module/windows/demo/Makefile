@@ -14,7 +14,7 @@ demo.exe: demo lib $(BUILDDIR)/
 	@echo Building demo.exe
 	$(CXX) -o $(BUILDDIR)/$@ $(OBJS) $(BUILDDIR)/demo.o $(LDOPTS)
 
-demo: main.cpp $(BUILDDIR)/
+demo: main.cpp ../src/ActiveWindow.h $(BUILDDIR)/
 	@echo Building demo
 	$(CXX) -c -o $(BUILDDIR)/demo.o main.cpp
 

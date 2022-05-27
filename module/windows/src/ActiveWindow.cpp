@@ -29,11 +29,19 @@ namespace PaymoActiveWindow {
 		// get app path
 		info->path = this->getProcessPath(hProc);
 
+		// check if app is UWP app
+		if (this->isUWPApp(info->path)) {
+			EnumChildWindowsCbParam* cbParam = new EnumChildWindowsCbParam(this);
+			EnumChildWindows(h, EnumChildWindowsCb, (LPARAM)cbParam);
+			
+			info->path = cbParam->path;
+			delete cbParam;
+		}
+
 		// get app name
 		info->application = this->getProcessName(info->path);
 		if (info->application.size() == 0) {
-			size_t lastSlash = info->path.find_last_of(L"\\");
-			info->application = info->path.substr(lastSlash + 1);
+			info->application = this->basename(info->path);
 		}
 
 		// close process handle
@@ -42,10 +50,10 @@ namespace PaymoActiveWindow {
 		return info;
 	}
 
-	std::wstring ActiveWindow::getWindowTitle(HWND h) {
-		int len = GetWindowTextLength(h);
+	std::wstring ActiveWindow::getWindowTitle(HWND hWindow) {
+		int len = GetWindowTextLength(hWindow);
 		std::vector<wchar_t> buf(len);
-		if (!GetWindowTextW(h, &buf[0], len + 1)) {
+		if (!GetWindowTextW(hWindow, &buf[0], len + 1)) {
 			return L"";
 		}
 		std::wstring title(buf.begin(), buf.end());
@@ -53,10 +61,10 @@ namespace PaymoActiveWindow {
 		return title;
 	}
 
-	std::wstring ActiveWindow::getProcessPath(HANDLE h) {
+	std::wstring ActiveWindow::getProcessPath(HANDLE hProc) {
 		std::vector<wchar_t> buf(MAX_PATH);
 		DWORD len = MAX_PATH;
-		if (!QueryFullProcessImageNameW(h, 0, &buf[0], &len)) {
+		if (!QueryFullProcessImageNameW(hProc, 0, &buf[0], &len)) {
 			return L"";
 		}
 		std::wstring name(buf.begin(), buf.begin() + len);
@@ -112,5 +120,41 @@ namespace PaymoActiveWindow {
 
 		delete data;
 		return name;
+	}
+
+	std::wstring ActiveWindow::basename(std::wstring path) {
+		size_t lastSlash = path.find_last_of(L"\\");
+
+		if (lastSlash == std::string::npos) {
+			return path;
+		}
+
+		return path.substr(lastSlash + 1);
+	}
+
+	bool ActiveWindow::isUWPApp(std::wstring path) {
+		return this->basename(path) == L"ApplicationFrameHost.exe";
+	}
+
+	BOOL CALLBACK ActiveWindow::EnumChildWindowsCb(HWND hWindow, LPARAM param) {
+		EnumChildWindowsCbParam* cbParam = (EnumChildWindowsCbParam*)param;
+
+		DWORD pid;
+		GetWindowThreadProcessId(hWindow, &pid);
+		HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+
+		if (hProc == null) {
+			return true;
+		}
+
+		cbParam->path = cbParam->aw->getProcessPath(hProc);
+
+		CloseHandle(hProc);
+
+		if (cbParam->aw->isUWPApp(cbParam->path)) {
+			return true;
+		}
+
+		return false;
 	}
 }

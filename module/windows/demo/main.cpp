@@ -8,6 +8,7 @@ void printWindowInfo(PaymoActiveWindow::ActiveWindow* aw) {
 
 	if (inf == null) {
 		std::cout<<"Error: Could not get window info"<<std::endl;
+		return;
 	}
 
 	std::wcout<<L"Title: \""<<inf->title<<L"\""<<std::endl;

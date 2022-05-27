@@ -17,8 +17,20 @@ namespace PaymoActiveWindow {
 	public:
 		WindowInfo* getActiveWindow();
 	private:
-		std::wstring getWindowTitle(HWND h);
-		std::wstring getProcessPath(HANDLE h);
+		std::wstring getWindowTitle(HWND hWindow);
+		std::wstring getProcessPath(HANDLE hProc);
 		std::wstring getProcessName(std::wstring path);
+		std::wstring basename(std::wstring path);
+		bool isUWPApp(std::wstring path);
+		static BOOL CALLBACK EnumChildWindowsCb(HWND hWindow, LPARAM param);
+	};
+
+	struct EnumChildWindowsCbParam {
+		ActiveWindow* aw;
+		std::wstring path = L"";
+
+		EnumChildWindowsCbParam(ActiveWindow* aw) {
+			this->aw = aw;
+		}
 	};
 }
