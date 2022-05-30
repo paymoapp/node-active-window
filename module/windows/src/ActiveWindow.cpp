@@ -2,6 +2,18 @@
 #include <iostream>
 
 namespace PaymoActiveWindow {
+	ActiveWindow::ActiveWindow() {
+		// initialize GDI+
+		Gdiplus::GdiplusStartupInput gdiPlusStartupInput;
+		Gdiplus::GdiplusStartup(&this->gdiPlusToken, &gdiPlusStartupInput, null);
+	}
+
+	ActiveWindow::~ActiveWindow() {
+		// tear down GDI+
+		std::cout<<"DESTRUCT!"<<std::endl;
+		Gdiplus::GdiplusShutdown(this->gdiPlusToken);
+	}
+
 	WindowInfo* ActiveWindow::getActiveWindow() {
 		HWND h = GetForegroundWindow();
 
@@ -29,6 +41,9 @@ namespace PaymoActiveWindow {
 		// get app path
 		info->path = this->getProcessPath(hProc);
 
+		// close process handle
+		CloseHandle(hProc);
+
 		// check if app is UWP app
 		if (this->isUWPApp(info->path)) {
 			EnumChildWindowsCbParam* cbParam = new EnumChildWindowsCbParam(this);
@@ -44,8 +59,8 @@ namespace PaymoActiveWindow {
 			info->application = this->basename(info->path);
 		}
 
-		// close process handle
-		CloseHandle(hProc);
+		// get window icon
+		this->getWindowIcon(info->path);
 
 		return info;
 	}
@@ -122,6 +137,17 @@ namespace PaymoActiveWindow {
 		return name;
 	}
 
+	void ActiveWindow::getWindowIcon(std::wstring path) {
+		HICON hIcon = this->getHighResolutionIcon(path);
+		
+		if (hIcon == null) {
+			std::cout<<"FAILED TO GET ICON"<<std::endl;
+			return;
+		}
+
+		this->getPngFromIcon(hIcon);
+	}
+
 	std::wstring ActiveWindow::basename(std::wstring path) {
 		size_t lastSlash = path.find_last_of(L"\\");
 
@@ -134,6 +160,66 @@ namespace PaymoActiveWindow {
 
 	bool ActiveWindow::isUWPApp(std::wstring path) {
 		return this->basename(path) == L"ApplicationFrameHost.exe";
+	}
+
+	HICON ActiveWindow::getHighResolutionIcon(std::wstring path) {
+		// get file info
+		SHFILEINFOW fileInfo;
+		if (!SHGetFileInfoW(path.c_str(), 0, &fileInfo, sizeof(fileInfo), SHGFI_SYSICONINDEX)) {
+			return null;
+		}
+
+		// get jumbo icon list
+		IImageList* imgList;
+		if (FAILED(SHGetImageList(SHIL_JUMBO, IID_PPV_ARGS(&imgList)))) {
+			return null;
+		}
+
+		// get first icon
+		HICON hIcon;
+		imgList->GetIcon(fileInfo.iIcon, ILD_TRANSPARENT, &hIcon);
+
+		imgList->Release();
+
+		return hIcon;
+	}
+
+	void ActiveWindow::getPngFromIcon(HICON hIcon) {
+		// convert icon to bitmap
+		ICONINFO iconInf;
+		GetIconInfo(hIcon, &iconInf);
+
+		BITMAP bmp;
+		GetObject(iconInf.hbmColor, sizeof(bmp), &bmp);
+
+		Gdiplus::Bitmap* tmp = new Gdiplus::Bitmap(iconInf.hbmColor, null);
+		Gdiplus::BitmapData* lockedBitmapData = new Gdiplus::BitmapData();
+		Gdiplus::Rect* rect = new Gdiplus::Rect(0, 0, tmp->GetWidth(), tmp->GetHeight());
+
+		tmp->LockBits(rect, Gdiplus::ImageLockModeRead, tmp->GetPixelFormat(), lockedBitmapData);
+
+		// get bitmap with transparency
+		Gdiplus::Bitmap* image = new Gdiplus::Bitmap(lockedBitmapData->Width, lockedBitmapData->Height, lockedBitmapData->Stride, PixelFormat32bppARGB, reinterpret_cast<BYTE*>(lockedBitmapData->Scan0));
+
+		// clean up
+		delete tmp;
+		delete lockedBitmapData;
+		delete rect;
+
+		// convert image to png
+		CLSID encoderClsId;
+		GdiPlusUtils::GetEncoderClsId(L"image/png", &encoderClsId);
+
+		Gdiplus::Status stat = image->Save(L"someicon.png", &encoderClsId, null);
+
+		if (stat == Gdiplus::Ok) {
+			std::cout<<"OK"<<std::endl;
+		}
+		else {
+			std::cout<<"FAILED!!!"<<std::endl;
+		}
+
+		delete image;
 	}
 
 	BOOL CALLBACK ActiveWindow::EnumChildWindowsCb(HWND hWindow, LPARAM param) {
