@@ -1,5 +1,4 @@
 #include "./ActiveWindow.h"
-#include <iostream>
 
 namespace PaymoActiveWindow {
 	ActiveWindow::ActiveWindow() {
@@ -10,7 +9,6 @@ namespace PaymoActiveWindow {
 
 	ActiveWindow::~ActiveWindow() {
 		// tear down GDI+
-		std::cout<<"DESTRUCT!"<<std::endl;
 		Gdiplus::GdiplusShutdown(this->gdiPlusToken);
 	}
 
@@ -60,7 +58,7 @@ namespace PaymoActiveWindow {
 		}
 
 		// get window icon
-		this->getWindowIcon(info->path);
+		info->icon = this->getWindowIcon(info->path);
 
 		return info;
 	}
@@ -137,15 +135,19 @@ namespace PaymoActiveWindow {
 		return name;
 	}
 
-	void ActiveWindow::getWindowIcon(std::wstring path) {
+	std::string ActiveWindow::getWindowIcon(std::wstring path) {
 		HICON hIcon = this->getHighResolutionIcon(path);
 		
 		if (hIcon == null) {
-			std::cout<<"FAILED TO GET ICON"<<std::endl;
-			return;
+			return "";
 		}
 
-		this->getPngFromIcon(hIcon);
+		IStream* pngStream = this->getPngFromIcon(hIcon);
+		std::string iconBase64 = this->encodeImageStream(pngStream);
+
+		pngStream->Release();
+
+		return "data:image/png;base64," + iconBase64;
 	}
 
 	std::wstring ActiveWindow::basename(std::wstring path) {
@@ -184,7 +186,7 @@ namespace PaymoActiveWindow {
 		return hIcon;
 	}
 
-	void ActiveWindow::getPngFromIcon(HICON hIcon) {
+	IStream* ActiveWindow::getPngFromIcon(HICON hIcon) {
 		// convert icon to bitmap
 		ICONINFO iconInf;
 		GetIconInfo(hIcon, &iconInf);
@@ -210,16 +212,38 @@ namespace PaymoActiveWindow {
 		CLSID encoderClsId;
 		GdiPlusUtils::GetEncoderClsId(L"image/png", &encoderClsId);
 
-		Gdiplus::Status stat = image->Save(L"someicon.png", &encoderClsId, null);
+		IStream* pngStream = SHCreateMemStream(null, 0);
+		Gdiplus::Status stat = image->Save(pngStream, &encoderClsId, null);
 
-		if (stat == Gdiplus::Ok) {
-			std::cout<<"OK"<<std::endl;
-		}
-		else {
-			std::cout<<"FAILED!!!"<<std::endl;
-		}
+		// prepare stream for reading
+		pngStream->Commit(STGC_DEFAULT);
+		LARGE_INTEGER seekPos;
+		seekPos.QuadPart = 0;
+		pngStream->Seek(seekPos, STREAM_SEEK_SET, null);
 
 		delete image;
+
+		if (stat == Gdiplus::Ok) {
+			return pngStream;
+		}
+
+		// failed to save to stream
+		pngStream->Release();
+		return null;
+	}
+
+	std::string ActiveWindow::encodeImageStream(IStream* pngStream) {
+		// get stream size
+		STATSTG streamStat;
+		pngStream->Stat(&streamStat, STATFLAG_NONAME);
+
+		// convert stream to string
+		std::vector<char> buf(streamStat.cbSize.QuadPart);
+		long unsigned int read;
+		pngStream->Read((void*)&buf[0], streamStat.cbSize.QuadPart, &read);
+		
+		std::string str(buf.begin(), buf.end());
+		return base64_encode(str);
 	}
 
 	BOOL CALLBACK ActiveWindow::EnumChildWindowsCb(HWND hWindow, LPARAM param) {

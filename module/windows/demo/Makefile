@@ -4,9 +4,9 @@ RM=rmdir /s /q
 LIBDIR=../src
 BUILDDIR=build
 
-SRCS=$(LIBDIR)/ActiveWindow.cpp $(LIBDIR)/GdiPlusUtils.cpp
+SRCS=$(LIBDIR)/ActiveWindow.cpp $(LIBDIR)/GdiPlusUtils.cpp $(LIBDIR)/base64.cpp
 OBJS=$(patsubst $(LIBDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
-LDOPTS=-lversion -lgdiplus -lgdi32
+LDOPTS=-lversion -lshlwapi -lgdiplus -lgdi32
 
 all: demo.exe
 

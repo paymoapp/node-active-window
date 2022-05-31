@@ -1,12 +1,14 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <commoncontrols.h>
+#include <shlwapi.h>
 #include <gdiplus.h>
 #include <string>
 #include <sstream>
 #include <iomanip>
 #include <vector>
 #include "GdiPlusUtils.h"
+#include "base64.h"
 
 #ifndef null
 #define null 0
@@ -18,6 +20,7 @@ namespace PaymoActiveWindow {
 		std::wstring application = L"";
 		std::wstring path = L"";
 		unsigned int pid = 0;
+		std::string icon = "";
 	};
 
 	class ActiveWindow {
@@ -31,11 +34,12 @@ namespace PaymoActiveWindow {
 		std::wstring getWindowTitle(HWND hWindow);
 		std::wstring getProcessPath(HANDLE hProc);
 		std::wstring getProcessName(std::wstring path);
-		void getWindowIcon(std::wstring path);
+		std::string getWindowIcon(std::wstring path);
 		std::wstring basename(std::wstring path);
 		bool isUWPApp(std::wstring path);
 		HICON getHighResolutionIcon(std::wstring path);
-		void getPngFromIcon(HICON hIcon);
+		IStream* getPngFromIcon(HICON hIcon);
+		std::string encodeImageStream(IStream* pngStream);
 		static BOOL CALLBACK EnumChildWindowsCb(HWND hWindow, LPARAM param);
 	};
 
