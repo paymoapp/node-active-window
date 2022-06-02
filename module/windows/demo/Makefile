@@ -1,36 +1,29 @@
-CXX=g++
-RM=rmdir /s /q
+LIBDIR = ..\src
+BUILDDIR = build
 
-LIBDIR=../src
-BUILDDIR=build
+LIBS = User32.lib Shell32.lib Version.lib Shlwapi.lib Gdiplus.lib Gdi32.lib
 
-SRCS=$(LIBDIR)/ActiveWindow.cpp $(LIBDIR)/GdiPlusUtils.cpp $(LIBDIR)/base64.cpp
-OBJS=$(patsubst $(LIBDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
-LDOPTS=-lversion -lshlwapi -lgdiplus -lgdi32
+all: create_dir demo
 
-all: demo.exe
+demo: $(BUILDDIR)\demo.exe
 
-demo.exe: demo lib $(BUILDDIR)/
-	@echo Building demo.exe
-	$(CXX) -o $(BUILDDIR)/$@ $(OBJS) $(BUILDDIR)/demo.o $(LDOPTS)
+$(BUILDDIR)\demo.exe: $(BUILDDIR)\*.obj $(BUILDDIR)\main.obj
+	@echo Linking demo.exe
+	link /out:$(BUILDDIR)\demo.exe $(BUILDDIR)\*.obj $(LIBS)
 
-demo: main.cpp ../src/ActiveWindow.h $(BUILDDIR)/
-	@echo Building demo
-	$(CXX) -c -o $(BUILDDIR)/demo.o main.cpp
+$(BUILDDIR)\main.obj: main.cpp
+	@echo Compiling main.cpp for demo
+	cl /c /EHsc /Fo$(BUILDDIR)\ main.cpp
 
-lib: $(OBJS)
-	@echo Built library
+{$(LIBDIR)}.cpp{$(BUILDDIR)}.obj ::
+	@echo Compiling $<
+	cl /c /EHsc /Fo$(BUILDDIR)\ $<
 
-$(BUILDDIR)/%.o: $(LIBDIR)/%.cpp $(LIBDIR)/%.h $(BUILDDIR)/
-	@echo Building $<
-	$(CXX) -c -o $@ $<
-
-$(BUILDDIR)/:
-	@echo Creating build directory
-	@mkdir $(BUILDDIR)
+create_dir:
+	@if not exist $(BUILDDIR) mkdir $(BUILDDIR)
 
 clean:
-	$(RM) $(BUILDDIR)
+	@if exist $(BUILDDIR) rmdir /s /q $(BUILDDIR)
 
 run:
-	$(BUILDDIR)/demo.exe
+	$(BUILDDIR)\demo.exe
