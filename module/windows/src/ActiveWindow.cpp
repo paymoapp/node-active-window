@@ -5,11 +5,17 @@ namespace PaymoActiveWindow {
 		// initialize GDI+
 		Gdiplus::GdiplusStartupInput gdiPlusStartupInput;
 		Gdiplus::GdiplusStartup(&this->gdiPlusToken, &gdiPlusStartupInput, null);
+
+		// initialize COM
+		CoInitializeEx(null, COINIT_MULTITHREADED);
 	}
 
 	ActiveWindow::~ActiveWindow() {
 		// tear down GDI+
 		Gdiplus::GdiplusShutdown(this->gdiPlusToken);
+
+		// tear down COM
+		CoUninitialize();
 	}
 
 	WindowInfo* ActiveWindow::getActiveWindow() {
@@ -38,16 +44,18 @@ namespace PaymoActiveWindow {
 
 		// get app path
 		info->path = this->getProcessPath(hProc);
-
-		// close process handle
 		CloseHandle(hProc);
 
 		// check if app is UWP app
 		if (this->isUWPApp(info->path)) {
+			info->isUWPApp = true;
+
 			EnumChildWindowsCbParam* cbParam = new EnumChildWindowsCbParam(this);
 			EnumChildWindows(h, EnumChildWindowsCb, (LPARAM)cbParam);
 			
 			info->path = cbParam->path;
+			// save handle of UWP process
+			hProc = cbParam->hProc;
 			delete cbParam;
 		}
 
@@ -57,8 +65,17 @@ namespace PaymoActiveWindow {
 			info->application = this->basename(info->path);
 		}
 
-		// get window icon
-		info->icon = this->getWindowIcon(info->path);
+		if (info->isUWPApp) {
+			info->uwpPackage = this->getUWPPackage(hProc);
+			info->icon = this->getUWPIcon(hProc);
+
+			// we need to close the handle of the UWP process
+			CloseHandle(hProc);
+		}
+		else {
+			// get window icon
+			info->icon = this->getWindowIcon(info->path);
+		}
 
 		return info;
 	}
@@ -150,6 +167,49 @@ namespace PaymoActiveWindow {
 		return "data:image/png;base64," + iconBase64;
 	}
 
+	std::string ActiveWindow::getUWPIcon(HANDLE hProc) {
+		std::wstring pkgPath = this->getUWPPackagePath(hProc);
+		IAppxManifestProperties* properties = this->getUWPPackageProperties(pkgPath);
+
+		if (properties == null) {
+			return "";
+		}
+
+		LPWSTR logo = null;
+		properties->GetStringValue(L"Logo", &logo);
+		properties->Release();
+		std::wstring logoPath = pkgPath + L"\\" + logo;
+
+		if (!PathFileExistsW(logoPath.c_str())) {
+			// we need to use scale 100
+			size_t dotPos = logoPath.find_last_of(L".");
+			logoPath.insert(dotPos, L".scale-100");
+		}
+
+		IStream* pngStream = null;
+		if (FAILED(SHCreateStreamOnFileEx(logoPath.c_str(), STGM_READ | STGM_SHARE_EXCLUSIVE, 0, FALSE, null, &pngStream))) {
+			return "";
+		}
+
+		std::string iconBase64 = this->encodeImageStream(pngStream);
+
+		pngStream->Release();
+
+		return "data:image/png;base64," + iconBase64;
+	}
+
+	std::wstring ActiveWindow::getUWPPackage(HANDLE hProc) {
+		UINT32 len = 0;
+		GetPackageFullName(hProc, &len, null);
+
+		std::vector<wchar_t> buf(len);
+		GetPackageFullName(hProc, &len, &buf[0]);
+
+		std::wstring package(buf.begin(), buf.begin() + len - 1);
+
+		return package;
+	}
+
 	std::wstring ActiveWindow::basename(std::wstring path) {
 		size_t lastSlash = path.find_last_of(L"\\");
 
@@ -232,6 +292,59 @@ namespace PaymoActiveWindow {
 		return null;
 	}
 
+	std::wstring ActiveWindow::getUWPPackagePath(HANDLE hProc) {
+		UINT32 pkgIdLen = 0;
+		GetPackageId(hProc, &pkgIdLen, null);
+		PACKAGE_ID* pkgId = (PACKAGE_ID*)malloc(pkgIdLen);
+		GetPackageId(hProc, &pkgIdLen, (BYTE*)pkgId);
+
+		UINT32 len = 0;
+		GetPackagePath(pkgId, 0, &len, null);
+
+		std::vector<wchar_t> buf(len);
+		GetPackagePath(pkgId, 0, &len, &buf[0]);
+
+		std::wstring pkgPath(buf.begin(), buf.begin() + len - 1);
+
+		free(pkgId);
+
+		return pkgPath;
+	}
+
+	IAppxManifestProperties* ActiveWindow::getUWPPackageProperties(std::wstring pkgPath) {
+		IAppxFactory* appxFactory = null;
+		if (FAILED(CoCreateInstance(__uuidof(AppxFactory), null, CLSCTX_INPROC_SERVER, __uuidof(IAppxFactory), (LPVOID*)&appxFactory))) {
+			return null;
+		}
+
+		IStream* manifestStream;
+		std::wstring manifestPath = pkgPath + L"\\AppxManifest.xml";
+		if (FAILED(SHCreateStreamOnFileEx(manifestPath.c_str(), STGM_READ | STGM_SHARE_EXCLUSIVE, 0, FALSE, null, &manifestStream))) {
+			appxFactory->Release();
+			return null;
+		}
+
+		IAppxManifestReader* manifestReader = null;
+		if (FAILED(appxFactory->CreateManifestReader(manifestStream, &manifestReader))) {
+			appxFactory->Release();
+			manifestStream->Release();
+			return null;
+		}
+
+		IAppxManifestProperties* properties = null;
+		if (FAILED(manifestReader->GetProperties(&properties))) {
+			appxFactory->Release();
+			manifestStream->Release();
+			manifestReader->Release();
+			return null;
+		}
+		
+		appxFactory->Release();
+		manifestStream->Release();
+		manifestReader->Release();
+		return properties;
+	}
+
 	std::string ActiveWindow::encodeImageStream(IStream* pngStream) {
 		// get stream size
 		STATSTG streamStat;
@@ -258,10 +371,10 @@ namespace PaymoActiveWindow {
 		}
 
 		cbParam->path = cbParam->aw->getProcessPath(hProc);
-
-		CloseHandle(hProc);
+		cbParam->hProc = hProc;
 
 		if (cbParam->aw->isUWPApp(cbParam->path)) {
+			CloseHandle(hProc);
 			return true;
 		}
 

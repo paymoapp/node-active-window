@@ -1,7 +1,7 @@
 LIBDIR = ..\src
 BUILDDIR = build
 
-LIBS = User32.lib Shell32.lib Version.lib Shlwapi.lib Gdiplus.lib Gdi32.lib
+LIBS = User32.lib Shell32.lib Version.lib Shlwapi.lib Gdiplus.lib Gdi32.lib Windowsapp.lib
 
 all: create_dir demo
 

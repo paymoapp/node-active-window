@@ -1,4 +1,6 @@
 #include <windows.h>
+#include <appmodel.h>
+#include <appxpackaging.h>
 #include <commctrl.h>
 #include <commoncontrols.h>
 #include <shlwapi.h>
@@ -20,6 +22,8 @@ namespace PaymoActiveWindow {
 		std::wstring application = L"";
 		std::wstring path = L"";
 		unsigned int pid = 0;
+		bool isUWPApp = false;
+		std::wstring uwpPackage = L"";
 		std::string icon = "";
 	};
 
@@ -35,10 +39,15 @@ namespace PaymoActiveWindow {
 		std::wstring getProcessPath(HANDLE hProc);
 		std::wstring getProcessName(std::wstring path);
 		std::string getWindowIcon(std::wstring path);
+		std::string getUWPIcon(HANDLE hProc);
+		std::wstring getUWPPackage(HANDLE hProc);
 		std::wstring basename(std::wstring path);
 		bool isUWPApp(std::wstring path);
 		HICON getHighResolutionIcon(std::wstring path);
 		IStream* getPngFromIcon(HICON hIcon);
+		std::wstring getUWPPackagePath(HANDLE hProc);
+		IAppxManifestProperties* getUWPPackageProperties(std::wstring pkgPath);
+		std::wstring getUWPLargestIconPath(std::wstring iconPath);
 		std::string encodeImageStream(IStream* pngStream);
 		static BOOL CALLBACK EnumChildWindowsCb(HWND hWindow, LPARAM param);
 	};
@@ -46,6 +55,7 @@ namespace PaymoActiveWindow {
 	struct EnumChildWindowsCbParam {
 		ActiveWindow* aw;
 		std::wstring path = L"";
+		HANDLE hProc;
 
 		EnumChildWindowsCbParam(ActiveWindow* aw) {
 			this->aw = aw;
