@@ -12,9 +12,8 @@
 #include "GdiPlusUtils.h"
 #include "base64.h"
 
-#ifndef null
-#define null 0
-#endif
+#ifndef _PAYMO_ACTIVEWINDOW_H
+#define _PAYMO_ACTIVEWINDOW_H
 
 namespace PaymoActiveWindow {
 	struct WindowInfo {
@@ -62,3 +61,5 @@ namespace PaymoActiveWindow {
 		}
 	};
 }
+
+#endif

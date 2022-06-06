@@ -4,10 +4,10 @@ namespace PaymoActiveWindow {
 	ActiveWindow::ActiveWindow() {
 		// initialize GDI+
 		Gdiplus::GdiplusStartupInput gdiPlusStartupInput;
-		Gdiplus::GdiplusStartup(&this->gdiPlusToken, &gdiPlusStartupInput, null);
+		Gdiplus::GdiplusStartup(&this->gdiPlusToken, &gdiPlusStartupInput, NULL);
 
 		// initialize COM
-		CoInitializeEx(null, COINIT_MULTITHREADED);
+		CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	}
 
 	ActiveWindow::~ActiveWindow() {
@@ -21,8 +21,8 @@ namespace PaymoActiveWindow {
 	WindowInfo* ActiveWindow::getActiveWindow() {
 		HWND h = GetForegroundWindow();
 
-		if (h == null) {
-			return null;
+		if (h == NULL) {
+			return NULL;
 		}
 
 		WindowInfo* info = new WindowInfo();
@@ -38,8 +38,8 @@ namespace PaymoActiveWindow {
 		// get process handle
 		HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
 
-		if (hProc == null) {
-			return null;
+		if (hProc == NULL) {
+			return NULL;
 		}
 
 		// get app path
@@ -103,7 +103,7 @@ namespace PaymoActiveWindow {
 	}
 
 	std::wstring ActiveWindow::getProcessName(std::wstring path) {
-		DWORD infoSize = GetFileVersionInfoSizeW(path.c_str(), null);
+		DWORD infoSize = GetFileVersionInfoSizeW(path.c_str(), NULL);
 
 		if (!infoSize) {
 			return L"";
@@ -155,7 +155,7 @@ namespace PaymoActiveWindow {
 	std::string ActiveWindow::getWindowIcon(std::wstring path) {
 		HICON hIcon = this->getHighResolutionIcon(path);
 		
-		if (hIcon == null) {
+		if (hIcon == NULL) {
 			return "";
 		}
 
@@ -171,11 +171,11 @@ namespace PaymoActiveWindow {
 		std::wstring pkgPath = this->getUWPPackagePath(hProc);
 		IAppxManifestProperties* properties = this->getUWPPackageProperties(pkgPath);
 
-		if (properties == null) {
+		if (properties == NULL) {
 			return "";
 		}
 
-		LPWSTR logo = null;
+		LPWSTR logo = NULL;
 		properties->GetStringValue(L"Logo", &logo);
 		properties->Release();
 		std::wstring logoPath = pkgPath + L"\\" + logo;
@@ -186,8 +186,8 @@ namespace PaymoActiveWindow {
 			logoPath.insert(dotPos, L".scale-100");
 		}
 
-		IStream* pngStream = null;
-		if (FAILED(SHCreateStreamOnFileEx(logoPath.c_str(), STGM_READ | STGM_SHARE_EXCLUSIVE, 0, FALSE, null, &pngStream))) {
+		IStream* pngStream = NULL;
+		if (FAILED(SHCreateStreamOnFileEx(logoPath.c_str(), STGM_READ | STGM_SHARE_EXCLUSIVE, 0, FALSE, NULL, &pngStream))) {
 			return "";
 		}
 
@@ -200,7 +200,7 @@ namespace PaymoActiveWindow {
 
 	std::wstring ActiveWindow::getUWPPackage(HANDLE hProc) {
 		UINT32 len = 0;
-		GetPackageFullName(hProc, &len, null);
+		GetPackageFullName(hProc, &len, NULL);
 
 		std::vector<wchar_t> buf(len);
 		GetPackageFullName(hProc, &len, &buf[0]);
@@ -228,13 +228,13 @@ namespace PaymoActiveWindow {
 		// get file info
 		SHFILEINFOW fileInfo;
 		if (!SHGetFileInfoW(path.c_str(), 0, &fileInfo, sizeof(fileInfo), SHGFI_SYSICONINDEX)) {
-			return null;
+			return NULL;
 		}
 
 		// get jumbo icon list
 		IImageList* imgList;
 		if (FAILED(SHGetImageList(SHIL_JUMBO, IID_PPV_ARGS(&imgList)))) {
-			return null;
+			return NULL;
 		}
 
 		// get first icon
@@ -254,7 +254,7 @@ namespace PaymoActiveWindow {
 		BITMAP bmp;
 		GetObject(iconInf.hbmColor, sizeof(bmp), &bmp);
 
-		Gdiplus::Bitmap* tmp = new Gdiplus::Bitmap(iconInf.hbmColor, null);
+		Gdiplus::Bitmap* tmp = new Gdiplus::Bitmap(iconInf.hbmColor, NULL);
 		Gdiplus::BitmapData* lockedBitmapData = new Gdiplus::BitmapData();
 		Gdiplus::Rect* rect = new Gdiplus::Rect(0, 0, tmp->GetWidth(), tmp->GetHeight());
 
@@ -272,14 +272,14 @@ namespace PaymoActiveWindow {
 		CLSID encoderClsId;
 		GdiPlusUtils::GetEncoderClsId(L"image/png", &encoderClsId);
 
-		IStream* pngStream = SHCreateMemStream(null, 0);
-		Gdiplus::Status stat = image->Save(pngStream, &encoderClsId, null);
+		IStream* pngStream = SHCreateMemStream(NULL, 0);
+		Gdiplus::Status stat = image->Save(pngStream, &encoderClsId, NULL);
 
 		// prepare stream for reading
 		pngStream->Commit(STGC_DEFAULT);
 		LARGE_INTEGER seekPos;
 		seekPos.QuadPart = 0;
-		pngStream->Seek(seekPos, STREAM_SEEK_SET, null);
+		pngStream->Seek(seekPos, STREAM_SEEK_SET, NULL);
 
 		delete image;
 
@@ -289,17 +289,17 @@ namespace PaymoActiveWindow {
 
 		// failed to save to stream
 		pngStream->Release();
-		return null;
+		return NULL;
 	}
 
 	std::wstring ActiveWindow::getUWPPackagePath(HANDLE hProc) {
 		UINT32 pkgIdLen = 0;
-		GetPackageId(hProc, &pkgIdLen, null);
+		GetPackageId(hProc, &pkgIdLen, NULL);
 		PACKAGE_ID* pkgId = (PACKAGE_ID*)malloc(pkgIdLen);
 		GetPackageId(hProc, &pkgIdLen, (BYTE*)pkgId);
 
 		UINT32 len = 0;
-		GetPackagePath(pkgId, 0, &len, null);
+		GetPackagePath(pkgId, 0, &len, NULL);
 
 		std::vector<wchar_t> buf(len);
 		GetPackagePath(pkgId, 0, &len, &buf[0]);
@@ -312,31 +312,31 @@ namespace PaymoActiveWindow {
 	}
 
 	IAppxManifestProperties* ActiveWindow::getUWPPackageProperties(std::wstring pkgPath) {
-		IAppxFactory* appxFactory = null;
-		if (FAILED(CoCreateInstance(__uuidof(AppxFactory), null, CLSCTX_INPROC_SERVER, __uuidof(IAppxFactory), (LPVOID*)&appxFactory))) {
-			return null;
+		IAppxFactory* appxFactory = NULL;
+		if (FAILED(CoCreateInstance(__uuidof(AppxFactory), NULL, CLSCTX_INPROC_SERVER, __uuidof(IAppxFactory), (LPVOID*)&appxFactory))) {
+			return NULL;
 		}
 
 		IStream* manifestStream;
 		std::wstring manifestPath = pkgPath + L"\\AppxManifest.xml";
-		if (FAILED(SHCreateStreamOnFileEx(manifestPath.c_str(), STGM_READ | STGM_SHARE_EXCLUSIVE, 0, FALSE, null, &manifestStream))) {
+		if (FAILED(SHCreateStreamOnFileEx(manifestPath.c_str(), STGM_READ | STGM_SHARE_EXCLUSIVE, 0, FALSE, NULL, &manifestStream))) {
 			appxFactory->Release();
-			return null;
+			return NULL;
 		}
 
-		IAppxManifestReader* manifestReader = null;
+		IAppxManifestReader* manifestReader = NULL;
 		if (FAILED(appxFactory->CreateManifestReader(manifestStream, &manifestReader))) {
 			appxFactory->Release();
 			manifestStream->Release();
-			return null;
+			return NULL;
 		}
 
-		IAppxManifestProperties* properties = null;
+		IAppxManifestProperties* properties = NULL;
 		if (FAILED(manifestReader->GetProperties(&properties))) {
 			appxFactory->Release();
 			manifestStream->Release();
 			manifestReader->Release();
-			return null;
+			return NULL;
 		}
 		
 		appxFactory->Release();
@@ -366,7 +366,7 @@ namespace PaymoActiveWindow {
 		GetWindowThreadProcessId(hWindow, &pid);
 		HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
 
-		if (hProc == null) {
+		if (hProc == NULL) {
 			return true;
 		}
 

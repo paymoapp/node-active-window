@@ -5,7 +5,7 @@ namespace GdiPlusUtils {
 		UINT num = 0;
 		UINT size = 0;
 
-		Gdiplus::ImageCodecInfo* pImageCodecInfo = null;
+		Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
 
 		Gdiplus::GetImageEncodersSize(&num, &size);
 		if (size == 0) {
@@ -13,7 +13,7 @@ namespace GdiPlusUtils {
 		}
 
 		pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
-		if (pImageCodecInfo == null) {
+		if (pImageCodecInfo == NULL) {
 			return -1;
 		}
 
