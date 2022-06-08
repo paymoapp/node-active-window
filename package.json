@@ -6,7 +6,7 @@
   "gypfile": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:demo": "ts-node demo/index.ts",
+    "demo": "ts-node --project tsconfig.json demo/index.ts",
     "build": "npm run clean && tsc && npm run build:gyp",
     "build:gyp": "node-gyp configure && node-gyp build",
     "clean": "node-gyp clean && rimraf dist",

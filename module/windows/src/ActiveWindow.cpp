@@ -53,6 +53,11 @@ namespace PaymoActiveWindow {
 			EnumChildWindowsCbParam* cbParam = new EnumChildWindowsCbParam(this);
 			EnumChildWindows(h, EnumChildWindowsCb, (LPARAM)cbParam);
 			
+			if (!cbParam->ok) {
+				delete cbParam;
+				return NULL;
+			}
+
 			info->path = cbParam->path;
 			// save handle of UWP process
 			hProc = cbParam->hProc;
@@ -86,7 +91,7 @@ namespace PaymoActiveWindow {
 		if (!GetWindowTextW(hWindow, buf.data(), len)) {
 			return L"";
 		}
-		std::wstring title(buf.begin(), buf.begin() + len);
+		std::wstring title(buf.begin(), buf.begin() + len - 1);
 
 		return title;
 	}
@@ -200,10 +205,10 @@ namespace PaymoActiveWindow {
 
 	std::wstring ActiveWindow::getUWPPackage(HANDLE hProc) {
 		UINT32 len = 0;
-		GetPackageFullName(hProc, &len, NULL);
+		GetPackageFamilyName(hProc, &len, NULL);
 
 		std::vector<wchar_t> buf(len);
-		GetPackageFullName(hProc, &len, buf.data());
+		GetPackageFamilyName(hProc, &len, buf.data());
 
 		std::wstring package(buf.begin(), buf.begin() + len - 1);
 
@@ -373,11 +378,13 @@ namespace PaymoActiveWindow {
 		cbParam->path = cbParam->aw->getProcessPath(hProc);
 		cbParam->hProc = hProc;
 
-		if (cbParam->aw->isUWPApp(cbParam->path)) {
+		UINT32 _len = 0;
+		if (GetPackageFamilyName(cbParam->hProc, &_len, NULL) == APPMODEL_ERROR_NO_PACKAGE) {
 			CloseHandle(hProc);
 			return true;
 		}
 
+		cbParam->ok = true;
 		return false;
 	}
 }

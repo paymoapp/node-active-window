@@ -60,8 +60,6 @@ const checkInterval = setInterval(() => {
 	console.log('Checking window info');
 	try {
 		const curWinInfo = ActiveWindow.getActiveWindow();
-		console.log('ok');
-		console.log(curWinInfo);
 
 		if (!objectDeepCompare(curWinInfo, winInfo)) {
 			// different
@@ -85,6 +83,9 @@ process.on('SIGINT', () => {
 	wss.close();
 	server.close();
 
-	console.log('Exited');
+	setTimeout(() => {
+		console.log('Exited');
+		process.exit(0);
+	}, 1000);
 });
 

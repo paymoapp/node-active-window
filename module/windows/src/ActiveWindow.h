@@ -55,6 +55,7 @@ namespace PaymoActiveWindow {
 		ActiveWindow* aw;
 		std::wstring path = L"";
 		HANDLE hProc;
+		bool ok = false;
 
 		EnumChildWindowsCbParam(ActiveWindow* aw) {
 			this->aw = aw;

@@ -20,9 +20,7 @@ const ActiveWindow: Module<WindowInfo> = {
 			throw new Error('Failed to load native addon');
 		}
 
-		console.log('asking addon');
 		const info = addon.getActiveWindow();
-		console.log('addon responded');
 
 		return {
 			title: info.title,
