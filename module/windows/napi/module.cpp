@@ -11,12 +11,14 @@ Napi::Object module::Init(Napi::Env env, Napi::Object exports) {
 Napi::Object module::getActiveWindow(const Napi::CallbackInfo& info) {
 	PaymoActiveWindow::ActiveWindow* activeWindow = info.Env().GetInstanceData<PaymoActiveWindow::ActiveWindow>();
 	if (activeWindow == NULL) {
-		throw Napi::Error::New(info.Env(), "ActiveWindow module not initialized");
+		Napi::Error::New(info.Env(), "ActiveWindow module not initialized").ThrowAsJavaScriptException();
+		return Napi::Object::Object();
 	}
 
 	PaymoActiveWindow::WindowInfo* windowInfo = activeWindow->getActiveWindow();
 	if (windowInfo == NULL) {
-		throw Napi::Error::New(info.Env(), "Failed to get active window");
+		Napi::Error::New(info.Env(), "Failed to get active window").ThrowAsJavaScriptException();
+		return Napi::Object::Object();
 	}
 
 	Napi::Object result = Napi::Object::New(info.Env());

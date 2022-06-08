@@ -6,14 +6,16 @@
   "gypfile": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm run clean && tsc",
+    "start:demo": "ts-node demo/index.ts",
+    "build": "npm run clean && tsc && npm run build:gyp",
     "build:gyp": "node-gyp configure && node-gyp build",
     "clean": "node-gyp clean && rimraf dist",
+    "clean:gyp": "node-gyp clean",
     "typecheck": "tsc --noEmit",
-    "lint": "esw --color --ext .ts src",
-    "lint:fix": "esw --color --fix --ext .ts src",
-    "lint:watch": "esw --color --fix --watch --cache --ext .ts src",
-    "format": "prettier --write src",
+    "lint": "esw --color --ext .ts src demo",
+    "lint:fix": "esw --color --fix --ext .ts src demo",
+    "lint:watch": "esw --color --fix --watch --cache --ext .ts src demo",
+    "format": "prettier --write src demo",
     "release": "standard-version",
     "release:pre": "standard-version --prerelease"
   },
@@ -31,6 +33,7 @@
   "license": "GPL-3.0",
   "devDependencies": {
     "@types/node": "^17.0.35",
+    "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
     "cross-env": "^7.0.3",
@@ -45,9 +48,11 @@
     "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
     "standard-version": "^9.5.0",
+    "ts-node": "^10.8.1",
     "typedoc": "^0.22.15",
     "typedoc-plugin-markdown": "^3.12.1",
-    "typescript": "^4.6.4"
+    "typescript": "^4.6.4",
+    "ws": "^8.7.0"
   },
   "dependencies": {
     "node-addon-api": "^5.0.0"

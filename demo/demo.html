@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>node-active-window demo</title>
+		<meta charset="utf-8" />
+		<style>
+			table,
+			th,
+			td {
+				border: 1px solid black;
+				border-collapse: collapse;
+				padding: 0 5px;
+			}
+
+			table {
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>node-active-window demo</h1>
+		<p>You will see applications pop up in the table below</p>
+		<table>
+			<thead>
+				<tr>
+					<th>Window Title</th>
+					<th>Application</th>
+					<th>Executable path</th>
+					<th>PID</th>
+					<th>Icon</th>
+					<th>Extra</th>
+				</tr>
+			</thead>
+			<tbody id="app_table"></tbody>
+		</table>
+		<script>
+			const ws = new WebSocket('ws://localhost:3000/ws');
+			ws.onmessage = e => {
+				const data = JSON.parse(e.data);
+				console.log('Got:', data);
+
+				const { title, application, path, pid, icon, ...extra } = data;
+
+				const tr = document.createElement('tr');
+
+				const tTitle = document.createElement('td');
+				tTitle.innerHTML = title;
+				tr.append(tTitle);
+
+				const tApp = document.createElement('td');
+				tApp.innerHTML = application;
+				tr.append(tApp);
+
+				const tPath = document.createElement('td');
+				tPath.innerHTML = path;
+				tr.append(tPath);
+
+				const tPid = document.createElement('td');
+				tPath.innerHTML = pid;
+				tr.append(tPid);
+
+				const tIcon = document.createElement('td');
+				const iconImg = document.createElement('img');
+				iconImg.src = icon;
+				iconImg.style.maxWidth = '256px';
+				iconImg.style.maxHeight = '256px';
+				tIcon.append(iconImg);
+				tr.append(tIcon);
+
+				const tExtra = document.createElement('td');
+				tExtra.innerHTML = JSON.stringify(extra);
+				tr.append(tExtra);
+
+				document.getElementById('app_table').append(tr);
+			};
+		</script>
+	</body>
+</html>

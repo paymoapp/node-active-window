@@ -22,8 +22,16 @@ void printWindowInfo(PaymoActiveWindow::ActiveWindow* aw) {
 	delete inf;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 	PaymoActiveWindow::ActiveWindow aw;
+
+	if (argc > 1) {
+		std::cout<<"Printing window info in infinite loop"<<std::endl;
+		for (;;) {
+			printWindowInfo(&aw);
+			Sleep(1000);
+		}
+	}
 
 	printWindowInfo(&aw);
 
