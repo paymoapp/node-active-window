@@ -81,12 +81,12 @@ namespace PaymoActiveWindow {
 	}
 
 	std::wstring ActiveWindow::getWindowTitle(HWND hWindow) {
-		int len = GetWindowTextLength(hWindow);
+		int len = GetWindowTextLength(hWindow) + 1;
 		std::vector<wchar_t> buf(len);
-		if (!GetWindowTextW(hWindow, &buf[0], len + 1)) {
+		if (!GetWindowTextW(hWindow, buf.data(), len)) {
 			return L"";
 		}
-		std::wstring title(buf.begin(), buf.end());
+		std::wstring title(buf.begin(), buf.begin() + len);
 
 		return title;
 	}
@@ -94,7 +94,7 @@ namespace PaymoActiveWindow {
 	std::wstring ActiveWindow::getProcessPath(HANDLE hProc) {
 		std::vector<wchar_t> buf(MAX_PATH);
 		DWORD len = MAX_PATH;
-		if (!QueryFullProcessImageNameW(hProc, 0, &buf[0], &len)) {
+		if (!QueryFullProcessImageNameW(hProc, 0, buf.data(), &len)) {
 			return L"";
 		}
 		std::wstring name(buf.begin(), buf.begin() + len);
@@ -203,7 +203,7 @@ namespace PaymoActiveWindow {
 		GetPackageFullName(hProc, &len, NULL);
 
 		std::vector<wchar_t> buf(len);
-		GetPackageFullName(hProc, &len, &buf[0]);
+		GetPackageFullName(hProc, &len, buf.data());
 
 		std::wstring package(buf.begin(), buf.begin() + len - 1);
 
@@ -302,7 +302,7 @@ namespace PaymoActiveWindow {
 		GetPackagePath(pkgId, 0, &len, NULL);
 
 		std::vector<wchar_t> buf(len);
-		GetPackagePath(pkgId, 0, &len, &buf[0]);
+		GetPackagePath(pkgId, 0, &len, buf.data());
 
 		std::wstring pkgPath(buf.begin(), buf.begin() + len - 1);
 
