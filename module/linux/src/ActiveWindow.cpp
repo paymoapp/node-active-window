@@ -28,6 +28,13 @@ namespace PaymoActiveWindow {
 		WindowInfo* info = new WindowInfo();
 
 		info->title = this->getWindowTitle(activeWin);
+		info->application = this->getApplicationName(activeWin);
+		info->pid = this->getWindowPid(activeWin);
+
+		if (info->pid >= 0) {
+			info->path = this->getProcessPath(info->pid);
+		}
+
 		return info;
 	}
 
@@ -43,11 +50,11 @@ namespace PaymoActiveWindow {
 
 		unsigned char* prop;
 
-		if (XGetWindowProperty(this->display, root, property, 0, 4, false, XA_WINDOW, &_actualType, &_actualFormat, &_itemsCount, &_bytes, &prop) != Success) {
+		if (XGetWindowProperty(this->display, root, property, 0, sizeof(Window), false, XA_WINDOW, &_actualType, &_actualFormat, &_itemsCount, &_bytes, &prop) != Success) {
 			return None;
 		}
 
-		Window focused = static_cast<unsigned long>(prop[0] + (prop[1] << 8) + (prop[2] << 16) + (prop[3] << 24));
+		Window focused = *reinterpret_cast<Window*>(prop);
 		XFree(prop);
 
 		return focused;
@@ -83,5 +90,77 @@ namespace PaymoActiveWindow {
 		XFreeStringList(list);
 
 		return title;
+	}
+
+	std::string ActiveWindow::getApplicationName(Window win) {
+		XClassHint classHint;
+
+		if (!XGetClassHint(this->display, win, &classHint)) {
+			return "";
+		}
+
+		std::string application(classHint.res_class);
+		XFree(classHint.res_name);
+		XFree(classHint.res_class);
+
+		return application;
+	}
+
+	pid_t ActiveWindow::getWindowPid(Window win) {
+		Atom property = XInternAtom(this->display, "_NET_WM_PID", true);
+
+		Atom _actualType;
+		int _actualFormat;
+		unsigned long _itemsCount;
+		unsigned long _bytes;
+
+		unsigned char* prop;
+
+		if (XGetWindowProperty(this->display, win, property, 0, sizeof(pid_t), false, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &_bytes, &prop) != Success) {
+			return -1;
+		}
+
+		pid_t pid = *reinterpret_cast<pid_t*>(prop);
+		XFree(prop);
+
+		return pid;
+	}
+
+	std::string ActiveWindow::getProcessPath(pid_t pid) {
+		std::stringstream procPath;
+		procPath<<"/proc/"<<pid<<"/cmdline";
+
+		int fd = open(procPath.str().c_str(), O_RDONLY);
+		if (fd < 0) {
+			return "";
+		}
+
+		std::string path = "";
+
+		int bytesRead = 0;
+		do {
+			char buf[256];
+			bytesRead = read(fd, buf, 255);
+
+			// convert inline nulls to spaces
+			for (int i = 0; i < bytesRead; i++) {
+				if (buf[i] == 0) {
+					buf[i] = ' ';
+				}
+			}
+
+			// add terminating null
+			buf[bytesRead] = 0;
+
+			// concat to existing path
+			path += buf;
+		} while (bytesRead > 0);
+
+		// remove last null which was converted to space
+		path.pop_back();
+
+		close(fd);
+
+		return path;
 	}
 }
