@@ -39,6 +39,7 @@ namespace PaymoActiveWindow {
 		HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
 
 		if (hProc == NULL) {
+			delete info;
 			return NULL;
 		}
 
@@ -55,6 +56,7 @@ namespace PaymoActiveWindow {
 			
 			if (!cbParam->ok) {
 				delete cbParam;
+				delete info;
 				return NULL;
 			}
 
