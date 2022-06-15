@@ -35,6 +35,10 @@ namespace PaymoActiveWindow {
 			info->path = this->getProcessPath(info->pid);
 		}
 
+		if (info->application != "") {
+			info->icon = this->getApplicationIcon(info->application);
+		}
+
 		return info;
 	}
 
@@ -180,6 +184,25 @@ namespace PaymoActiveWindow {
 		return path;
 	}
 
+	std::string ActiveWindow::getApplicationIcon(std::string app) {
+		// check if there's a direct match (using WM_CLASS)
+		if (this->apps.find(app) != this->apps.end()) {
+			// we have an icon
+			return this->encodePngIcon(this->appToIcon[app]);
+		}
+
+		// find using string match
+		std::string needle = this->processStringForIndex(app);
+		for (std::set<std::string>::iterator it = this->apps.begin(); it != this->apps.end(); it++) {
+			if (it->find(needle) != std::string::npos) {
+				// we have a likely match
+				return this->encodePngIcon(this->appToIcon[*it]);
+			}
+		}
+
+		return "";
+	}
+
 	void ActiveWindow::loadDesktopEntriesFromDirectory(std::string dir) {
 		DIR* d = opendir(dir.c_str());
 
@@ -238,6 +261,7 @@ namespace PaymoActiveWindow {
 
 		// replace 
 		ustr.findAndReplace(u8" ", u8"-");
+		ustr.findAndReplace(u8"_", u8"-");
 		
 		std::string processed;
 		ustr.toUTF8String(processed);
@@ -367,5 +391,31 @@ namespace PaymoActiveWindow {
 
 		closedir(d);
 		return true;
+	}
+
+	std::string ActiveWindow::encodePngIcon(std::string iconPath) {
+		int fd = open(iconPath.c_str(), O_RDONLY);
+
+		if (fd < 0) {
+			return "";
+		}
+
+		struct stat st;
+		fstat(fd, &st);
+
+		std::vector<unsigned char> buf(st.st_size);
+
+		int bytesRead = read(fd, buf.data(), st.st_size);
+
+		if (bytesRead != st.st_size) {
+			close(fd);
+			return "";
+		}
+
+		close(fd);
+
+		std::string icon(buf.begin(), buf.end());
+
+		return "data:image/png;base64," + base64_encode(icon);
 	}
 }

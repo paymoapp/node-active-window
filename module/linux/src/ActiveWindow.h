@@ -13,7 +13,9 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <unicode/unistr.h>
+#include <sys/stat.h>
 #include "./SimpleIni.h"
+#include "base64.h"
 
 #ifndef _PAYMO_ACTIVEWINDOW_H
 #define _PAYMO_ACTIVEWINDOW_H
@@ -45,6 +47,7 @@ namespace PaymoActiveWindow {
 		std::string getApplicationName(Window win);
 		pid_t getWindowPid(Window win);
 		std::string getProcessPath(pid_t pid);
+		std::string getApplicationIcon(std::string app);
 		void loadDesktopEntriesFromDirectory(std::string dir);
 		std::string processStringForIndex(std::string str);
 		std::string resolveIconPath(std::string icon);
@@ -52,6 +55,7 @@ namespace PaymoActiveWindow {
 		std::string tryResolveIconWithTheme(std::string icon, std::string dir, std::string theme);
 		std::string buildIconPath(std::string icon, std::string dir);
 		bool dirExists(std::string dir);
+		std::string encodePngIcon(std::string iconPath);
 	};
 }
 
