@@ -20,6 +20,22 @@
 						"Gdiplus.lib",
 						"Windowsapp.lib"
 					]
+				}],
+				["OS=='linux'", {
+					"sources": [
+						"module/linux/napi/main.cpp",
+						"module/linux/napi/module.cpp",
+						"module/linux/src/ActiveWindow.cpp",
+						"module/linux/src/base64.cpp",
+						"module/linux/src/ConvertUTF.c"
+					],
+					"libraries": [
+						"-lX11",
+						"-licuuc"
+					],
+					"cflags_cc": [
+						"-fexceptions"
+					]
 				}]
 			],
 			"include_dirs": [

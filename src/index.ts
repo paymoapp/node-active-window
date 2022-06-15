@@ -1,6 +1,11 @@
-import { Module, NativeWindowInfo, WindowInfo } from './types';
+import type {
+	Module,
+	NativeWindowInfo,
+	WindowInfo,
+	IActiveWindow
+} from './types';
 
-const SUPPORTED_PLATFORMS = ['win32'];
+const SUPPORTED_PLATFORMS = ['win32', 'linux'];
 
 let addon: Module<NativeWindowInfo> | undefined;
 
@@ -14,7 +19,7 @@ if (SUPPORTED_PLATFORMS.includes(process.platform)) {
 	);
 }
 
-const ActiveWindow: Module<WindowInfo> = {
+const ActiveWindow: IActiveWindow = {
 	getActiveWindow: (): WindowInfo => {
 		if (!addon) {
 			throw new Error('Failed to load native addon');
@@ -37,6 +42,15 @@ const ActiveWindow: Module<WindowInfo> = {
 				  }
 				: {})
 		};
+	},
+	initialize: (): void => {
+		if (!addon) {
+			throw new Error('Failed to load native addon');
+		}
+
+		if (addon.initialize) {
+			addon.initialize();
+		}
 	}
 };
 

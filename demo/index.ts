@@ -9,6 +9,8 @@ import ws from 'ws';
 
 import ActiveWindow, { WindowInfo } from '../src';
 
+ActiveWindow.initialize();
+
 const server = http.createServer((req, res) => {
 	fs.readFile(path.join(__dirname, 'demo.html'), (err, data) => {
 		if (err) {
@@ -40,7 +42,7 @@ let winInfo: WindowInfo | null = null;
 
 const objectDeepCompare = (a: any, b: any): boolean => {
 	return Object.keys(a).reduce((acc: boolean, cur) => {
-		if(cur == 'icon') {
+		if (cur == 'icon') {
 			return acc;
 		}
 
@@ -59,7 +61,11 @@ const objectDeepCompare = (a: any, b: any): boolean => {
 const checkInterval = setInterval(() => {
 	console.log('Checking window info');
 	try {
+		const rStart = Date.now();
 		const curWinInfo = ActiveWindow.getActiveWindow();
+		const rEnd = Date.now();
+
+		console.log('Fetching window info took:', rEnd - rStart, 'ms');
 
 		if (!objectDeepCompare(curWinInfo, winInfo)) {
 			// different
@@ -67,7 +73,7 @@ const checkInterval = setInterval(() => {
 			broadcastData(wss, curWinInfo);
 			winInfo = curWinInfo;
 		}
-	} catch(e) {
+	} catch (e) {
 		console.log('ERROR:', e);
 	}
 }, 3000);
@@ -78,7 +84,7 @@ process.on('SIGINT', () => {
 
 	wss.clients.forEach(client => {
 		client.terminate();
-	})
+	});
 
 	wss.close();
 	server.close();
@@ -88,4 +94,3 @@ process.on('SIGINT', () => {
 		process.exit(0);
 	}, 1000);
 });
-

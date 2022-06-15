@@ -22,4 +22,9 @@ export interface WindowInfo {
 
 export interface Module<T> {
 	getActiveWindow(): T;
+	initialize?(): void;
+}
+
+export interface IActiveWindow extends Module<WindowInfo> {
+	initialize(): void;
 }
