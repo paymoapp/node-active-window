@@ -30,22 +30,28 @@ void printWindowInfo(PaymoActiveWindow::ActiveWindow* aw) {
 
 int main(int argc, char* argv[]) {
 	XSetErrorHandler(handle_xerror);
-	PaymoActiveWindow::ActiveWindow aw;
+	PaymoActiveWindow::ActiveWindow* aw = new PaymoActiveWindow::ActiveWindow();
+
+	std::cout<<"Building app cache..."<<std::endl;
+	aw->buildAppCache();
+	std::cout<<"App cache built\n\n"<<std::endl;
 
 	if (argc > 1) {
 		std::cout<<"Printing window info in infinite loop"<<std::endl;
 		for (;;) {
-			printWindowInfo(&aw);
+			printWindowInfo(aw);
 			sleep(1);
 		}
 	}
 
-	printWindowInfo(&aw);
+	printWindowInfo(aw);
 
 	std::cout<<"Now sleeping 3 seconds for you to move to another window\n\n\n";
 	sleep(3);
 
-	printWindowInfo(&aw);
+	printWindowInfo(aw);
+
+	delete aw;
 
 	return 0;
 }
