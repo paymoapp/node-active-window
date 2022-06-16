@@ -1,4 +1,4 @@
-#include "./ActiveWindow.h"
+#include "ActiveWindow.h"
 
 namespace PaymoActiveWindow {
 	ActiveWindow::ActiveWindow() {

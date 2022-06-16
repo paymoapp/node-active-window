@@ -36,6 +36,24 @@
 					"cflags_cc": [
 						"-fexceptions"
 					]
+				}],
+				["OS=='mac'", {
+					"sources": [
+						"module/macos/napi/main.mm",
+						"module/macos/napi/module.mm",
+						"module/macos/src/ActiveWindow.mm",
+						"module/macos/src/base64.cpp"
+					],
+					"libraries": [
+						"-lc++",
+						"-framework Foundation",
+						"-framework AppKit",
+						"-framework ApplicationServices"
+					],
+					"xcode_settings": {
+						"CLANG_CXX_LANGUAGE_STANDARD": "c++20",
+						"GCC_ENABLE_CPP_EXCEPTIONS": "YES"
+					}
 				}]
 			],
 			"include_dirs": [

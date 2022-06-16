@@ -14,7 +14,7 @@
 #include <dirent.h>
 #include <unicode/unistr.h>
 #include <sys/stat.h>
-#include "./SimpleIni.h"
+#include "SimpleIni.h"
 #include "base64.h"
 
 #ifndef _PAYMO_ACTIVEWINDOW_H
