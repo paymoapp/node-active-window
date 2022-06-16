@@ -10,6 +10,7 @@ import ws from 'ws';
 import ActiveWindow, { WindowInfo } from '../src';
 
 ActiveWindow.initialize();
+ActiveWindow.requestPermissions();
 
 const server = http.createServer((req, res) => {
 	fs.readFile(path.join(__dirname, 'demo.html'), (err, data) => {
