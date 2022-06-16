@@ -23,8 +23,10 @@ export interface WindowInfo {
 export interface Module<T> {
 	getActiveWindow(): T;
 	initialize?(): void;
+	requestPermissions?(): boolean;
 }
 
 export interface IActiveWindow extends Module<WindowInfo> {
 	initialize(): void;
+	requestPermissions(): boolean;
 }

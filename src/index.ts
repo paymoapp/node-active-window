@@ -5,7 +5,7 @@ import type {
 	IActiveWindow
 } from './types';
 
-const SUPPORTED_PLATFORMS = ['win32', 'linux'];
+const SUPPORTED_PLATFORMS = ['win32', 'linux', 'darwin'];
 
 let addon: Module<NativeWindowInfo> | undefined;
 
@@ -51,6 +51,17 @@ const ActiveWindow: IActiveWindow = {
 		if (addon.initialize) {
 			addon.initialize();
 		}
+	},
+	requestPermissions: (): boolean => {
+		if (!addon) {
+			throw new Error('Failed to load native addon');
+		}
+
+		if (addon.requestPermissions) {
+			return addon.requestPermissions();
+		}
+
+		return true;
 	}
 };
 
