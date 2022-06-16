@@ -12,10 +12,10 @@ CXXOPTS=--std=c++2a
 all: demo
 
 demo: demo.obj lib $(BUILDDIR)/
-	@echo Building demo.exe
+	@echo Building demo executable
 	$(CXX) -o $(BUILDDIR)/$@ $(OBJS) $(BUILDDIR)/demo.o $(LDOPTS)
 
-demo.obj: main.cpp ../src/ActiveWindow.h $(BUILDDIR)/
+demo.obj: main.cpp $(LIBDIR)/ActiveWindow.h $(BUILDDIR)/
 	@echo Building demo
 	$(CXX) $(CXXOPTS) -c -o $(BUILDDIR)/demo.o main.cpp
 
