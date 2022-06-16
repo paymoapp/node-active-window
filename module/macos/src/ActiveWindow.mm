@@ -21,11 +21,16 @@ namespace PaymoActiveWindow {
 	}
 
 	bool ActiveWindow::requestScreenCaptureAccess() {
-		this->hasScreenCaptureAccess = CGPreflightScreenCaptureAccess();
+		if (@available(macOS 10.15, *)) {
+			this->hasScreenCaptureAccess = CGPreflightScreenCaptureAccess();
 
-		if (!this->hasScreenCaptureAccess) {
-			// request
-			this->hasScreenCaptureAccess = CGRequestScreenCaptureAccess();
+			if (!this->hasScreenCaptureAccess) {
+				// request
+				this->hasScreenCaptureAccess = CGRequestScreenCaptureAccess();
+			}
+		}
+		else {
+			this->hasScreenCaptureAccess = true;
 		}
 
 		return this->hasScreenCaptureAccess;
