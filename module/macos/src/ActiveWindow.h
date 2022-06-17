@@ -19,13 +19,18 @@ namespace PaymoActiveWindow {
 
 	class ActiveWindow {
 	public:
+		ActiveWindow();
+		~ActiveWindow();
 		WindowInfo* getActiveWindow();
 		bool requestScreenCaptureAccess();
 	private:
 		bool hasScreenCaptureAccess = false;
 
+		id observer = nil;
+
 		std::string encodeNSImage(NSImage* img);
 		std::string getWindowTitle(int pid);
+		void runLoop();
 	};
 }
 

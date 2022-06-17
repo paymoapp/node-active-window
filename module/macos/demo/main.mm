@@ -1,6 +1,7 @@
+#import <Foundation/Foundation.h>
 #include "../src/ActiveWindow.h"
 #include <iostream>
-#include <unistd.h>
+#include <csignal>
 
 void printWindowInfo(PaymoActiveWindow::ActiveWindow* aw) {
 	std::cout<<"Window currently in foreground:"<<std::endl;
@@ -21,6 +22,12 @@ void printWindowInfo(PaymoActiveWindow::ActiveWindow* aw) {
 	delete inf;
 }
 
+bool loop = true;
+void signalHandler(int signum) {
+	std::cout<<"Got Ctrl+C"<<std::endl;
+	loop = false;
+}
+
 int main(int argc, char* argv[]) {
 	PaymoActiveWindow::ActiveWindow* aw = new PaymoActiveWindow::ActiveWindow();
 
@@ -28,8 +35,19 @@ int main(int argc, char* argv[]) {
 	bool scaResp = aw->requestScreenCaptureAccess();
 	std::cout<<"The permission was: "<<(scaResp ? "granted" : "denied")<<"\n";
 
-	std::cout<<"Now sleeping 3 seconds for you to move to a window\n\n\n";
-	sleep(3);
+	if (argc > 1) {
+		std::cout<<"Printing window info in infinite loop. Press Ctrl+C to break."<<std::endl;
+		signal(SIGINT, signalHandler);
+		while (loop) {
+			printWindowInfo(aw);
+			[NSThread sleepForTimeInterval:3.0f];
+		}
+	}
+
+	printWindowInfo(aw);
+
+	std::cout<<"Now sleeping 3 seconds for you to move to an other window\n\n\n";
+	[NSThread sleepForTimeInterval:3.0f];
 
 	printWindowInfo(aw);
 

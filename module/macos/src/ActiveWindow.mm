@@ -1,8 +1,26 @@
 #include "ActiveWindow.h"
 
 namespace PaymoActiveWindow {
+	ActiveWindow::ActiveWindow() {
+		// subscribe to active window change notification
+		NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+		NSNotificationCenter* notificationCenter = [workspace notificationCenter];
+		this->observer = [notificationCenter addObserverForName:NSWorkspaceDidActivateApplicationNotification object: nil queue: nil usingBlock:^(NSNotification* notification) {
+		}];
+	}
+
+	ActiveWindow::~ActiveWindow() {
+		// remove observer
+		NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+		NSNotificationCenter* notificationCenter = [workspace notificationCenter];
+		[notificationCenter removeObserver:this->observer];
+	}
+
 	WindowInfo* ActiveWindow::getActiveWindow() {
-		NSRunningApplication* frontApp = [NSWorkspace sharedWorkspace].frontmostApplication;
+		this->runLoop();
+
+		NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+		NSRunningApplication* frontApp = [workspace frontmostApplication];
 
 		if (frontApp == nil) {
 			return NULL;
@@ -83,5 +101,10 @@ namespace PaymoActiveWindow {
 		}
 
 		return "";
+	}
+
+	void ActiveWindow::runLoop() {
+		// run RunLoop for 1 ms or until first event is handled
+		CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.001, true);
 	}
 }
