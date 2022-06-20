@@ -1,5 +1,12 @@
+# node modules
 node_modules/
+
+# eslint cache
 .eslintcache
+
+# build artifacts
 dist/
-docs/
 **/build/
+
+# module binding
+module/binding

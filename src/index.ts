@@ -1,3 +1,7 @@
+import path from 'path';
+
+import binary from '@mapbox/node-pre-gyp';
+
 import type {
 	Module,
 	NativeWindowInfo,
@@ -10,7 +14,10 @@ const SUPPORTED_PLATFORMS = ['win32', 'linux', 'darwin'];
 let addon: Module<NativeWindowInfo> | undefined;
 
 if (SUPPORTED_PLATFORMS.includes(process.platform)) {
-	addon = require('../build/Release/PaymoActiveWindow.node');
+	const bindingPath = binary.find(
+		path.resolve(path.join(__dirname, '../package.json'))
+	);
+	addon = require(bindingPath); // eslint-disable-line import/no-dynamic-require
 } else {
 	throw new Error(
 		`Unsupported platform. The supported platforms are: ${SUPPORTED_PLATFORMS.join(

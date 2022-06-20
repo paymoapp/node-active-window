@@ -5,12 +5,13 @@
   "main": "dist/index.js",
   "gypfile": true,
   "scripts": {
+    "install": "node-pre-gyp install --fallback-to-build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "demo": "ts-node --project tsconfig.json demo/index.ts",
     "build": "npm run clean && tsc --project tsconfig.build.json && npm run build:gyp",
-    "build:gyp": "node-gyp configure && node-gyp build",
-    "clean": "node-gyp clean && rimraf dist",
-    "clean:gyp": "node-gyp clean",
+    "build:gyp": "node-pre-gyp install --build-from-source",
+    "publish:bindings": "node-pre-gyp package publish",
+    "clean": "node-pre-gyp clean && rimraf dist",
     "typecheck": "tsc --noEmit",
     "lint": "esw --color --ext .ts src demo",
     "lint:fix": "esw --color --fix --ext .ts src demo",
@@ -18,6 +19,12 @@
     "format": "prettier --write src demo",
     "release": "standard-version",
     "release:pre": "standard-version --prerelease"
+  },
+  "binary": {
+    "module_name": "PaymoActiveWindow",
+    "module_path": "./module/binding",
+    "host": "https://paymo-node-addons-prebuilt.s3.amazonaws.com",
+    "remote_path": "./node-active-window/v{version}"
   },
   "repository": {
     "type": "git",
@@ -36,6 +43,7 @@
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
+    "aws-sdk": "^2.1157.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
@@ -55,6 +63,7 @@
     "ws": "^8.7.0"
   },
   "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.9",
     "node-addon-api": "^5.0.0"
   },
   "standard-version": {
