@@ -11,6 +11,14 @@ namespace PaymoActiveWindow {
 	}
 
 	ActiveWindow::~ActiveWindow() {
+		// stop watch thread
+		if (this->watchThread != NULL) {
+			this->threadShouldExit.store(true, std::memory_order_relaxed);
+			this->watchThread->join();
+			delete this->watchThread;
+			this->watchThread = NULL;
+		}
+
 		// tear down GDI+
 		Gdiplus::GdiplusShutdown(this->gdiPlusToken);
 
@@ -85,6 +93,28 @@ namespace PaymoActiveWindow {
 		}
 
 		return info;
+	}
+
+	watch_t ActiveWindow::watchActiveWindow(watch_callback cb) {
+		watch_t watchId = this->nextWatchId++;
+
+		this->mutex.lock();
+		this->watches[watchId] = cb;
+		this->mutex.unlock();
+
+		// register hook if not registered
+		if (this->watchThread == NULL) {
+			this->threadShouldExit.store(false, std::memory_order_relaxed);
+			this->watchThread = new std::thread(&ActiveWindow::runWatchThread, this);
+		}
+
+		return watchId;
+	}
+
+	void ActiveWindow::unwatchActiveWindow(watch_t watch) {
+		this->mutex.lock();
+		this->watches.erase(watch);
+		this->mutex.unlock();
 	}
 
 	std::wstring ActiveWindow::getWindowTitle(HWND hWindow) {
@@ -366,6 +396,43 @@ namespace PaymoActiveWindow {
 		return base64_encode(str);
 	}
 
+	void ActiveWindow::runWatchThread() {
+		HWINEVENTHOOK hHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, NULL, WinEventProcCb, 0, 0, WINEVENT_OUTOFCONTEXT);
+
+		// store context for callback
+		ActiveWindow::smutex.lock();
+		ActiveWindow::winEventProcCbCtx[hHook] = this;
+		ActiveWindow::smutex.unlock();
+
+		MSG msg;
+		UINT_PTR timer = SetTimer(NULL, NULL, 500, nullptr); // run message loop at least every 500 ms
+
+		for (;;) {
+			GetMessage(&msg, NULL, 0, 0);
+
+			if (msg.message = WM_TIMER) {
+				// check if we should exit
+				if (this->threadShouldExit.load(std::memory_order_relaxed)) {
+					break;
+				}
+			}
+
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		// remove timer
+		KillTimer(NULL, timer);
+
+		// remove hook
+		UnhookWinEvent(hHook);
+
+		// remove context
+		ActiveWindow::smutex.lock();
+		ActiveWindow::winEventProcCbCtx.erase(hHook);
+		ActiveWindow::smutex.unlock();
+	}
+
 	BOOL CALLBACK ActiveWindow::EnumChildWindowsCb(HWND hWindow, LPARAM param) {
 		EnumChildWindowsCbParam* cbParam = (EnumChildWindowsCbParam*)param;
 
@@ -388,5 +455,28 @@ namespace PaymoActiveWindow {
 
 		cbParam->ok = true;
 		return false;
+	}
+
+	VOID CALLBACK ActiveWindow::WinEventProcCb(HWINEVENTHOOK hHook, DWORD event, HWND hWindow, LONG idObject, LONG idChild, DWORD eventThread, DWORD eventTime) {
+		// get context
+		ActiveWindow::smutex.lock();
+		ActiveWindow* aw = ActiveWindow::winEventProcCbCtx[hHook];
+		ActiveWindow::smutex.unlock();
+
+		WindowInfo* info = aw->getActiveWindow();
+
+		// notify every callback
+		aw->mutex.lock();
+		for (std::map<watch_t, watch_callback>::iterator it = aw->watches.begin(); it != aw->watches.end(); it++) {
+			try {
+				it->second(info);
+			}
+			catch (...) {
+				// doing nothing
+			}
+		}
+		aw->mutex.unlock();
+
+		delete info;
 	}
 }

@@ -9,6 +9,10 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <map>
+#include <thread>
+#include <mutex>
+#include <functional>
 #include "GdiPlusUtils.h"
 #include "base64.h"
 
@@ -26,13 +30,28 @@ namespace PaymoActiveWindow {
 		std::string icon = "";
 	};
 
+	typedef unsigned int watch_t;
+	typedef std::function<void(WindowInfo*)> watch_callback;
+
 	class ActiveWindow {
 	public:
 		ActiveWindow();
 		~ActiveWindow();
 		WindowInfo* getActiveWindow();
+		watch_t watchActiveWindow(watch_callback cb);
+		void unwatchActiveWindow(watch_t watch);
 	private:
 		ULONG_PTR gdiPlusToken;
+
+		watch_t nextWatchId = 1;
+
+		std::thread* watchThread = NULL;
+		std::mutex mutex;
+		std::atomic<bool> threadShouldExit;
+		std::map<watch_t, watch_callback> watches;
+
+		static inline std::mutex smutex;
+		static inline std::map<HWINEVENTHOOK, ActiveWindow*> winEventProcCbCtx;
 
 		std::wstring getWindowTitle(HWND hWindow);
 		std::wstring getProcessPath(HANDLE hProc);
@@ -48,7 +67,9 @@ namespace PaymoActiveWindow {
 		IAppxManifestProperties* getUWPPackageProperties(std::wstring pkgPath);
 		std::wstring getUWPLargestIconPath(std::wstring iconPath);
 		std::string encodeImageStream(IStream* pngStream);
+		void runWatchThread();
 		static BOOL CALLBACK EnumChildWindowsCb(HWND hWindow, LPARAM param);
+		static VOID CALLBACK WinEventProcCb(HWINEVENTHOOK hHook, DWORD event, HWND hWindow, LONG idObject, LONG idChild, DWORD eventThread, DWORD eventTime);
 	};
 
 	struct EnumChildWindowsCbParam {

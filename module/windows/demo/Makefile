@@ -1,7 +1,8 @@
-LIBDIR = ..\src
-BUILDDIR = build
+LIBDIR=..\src
+BUILDDIR=build
 
-LIBS = User32.lib Shell32.lib Version.lib Shlwapi.lib Gdiplus.lib Gdi32.lib Windowsapp.lib
+LIBS=User32.lib Shell32.lib Version.lib Shlwapi.lib Gdiplus.lib Gdi32.lib Windowsapp.lib
+CLOPTS=/std:c++20
 
 all: create_dir demo
 
@@ -13,11 +14,11 @@ $(BUILDDIR)\demo.exe: $(BUILDDIR)\*.obj $(BUILDDIR)\main.obj
 
 $(BUILDDIR)\main.obj: main.cpp
 	@echo Compiling main.cpp for demo
-	cl /c /EHsc /Fo$(BUILDDIR)\ main.cpp
+	cl /c /EHsc $(CLOPTS) /Fo$(BUILDDIR)\ main.cpp
 
 {$(LIBDIR)}.cpp{$(BUILDDIR)}.obj ::
 	@echo Compiling $<
-	cl /c /EHsc /Fo$(BUILDDIR)\ $<
+	cl /c /EHsc $(CLOPTS) /Fo$(BUILDDIR)\ $<
 
 create_dir:
 	@if not exist $(BUILDDIR) mkdir $(BUILDDIR)
@@ -26,4 +27,4 @@ clean:
 	@if exist $(BUILDDIR) rmdir /s /q $(BUILDDIR)
 
 run:
-	$(BUILDDIR)\demo.exe
+	$(BUILDDIR)\demo.exe $(MODE)

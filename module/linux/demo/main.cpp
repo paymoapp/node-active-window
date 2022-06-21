@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
 			std::cout<<"\n\n\n";
 		});
 
-		std::cout<<"Set up watched. Id = "<<watchId<<std::endl;
+		std::cout<<"Set up watch. Id = "<<watchId<<std::endl;
 
 		while (loop) {
 			sleep(1);
