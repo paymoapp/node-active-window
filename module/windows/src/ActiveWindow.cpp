@@ -397,7 +397,7 @@ namespace PaymoActiveWindow {
 	}
 
 	void ActiveWindow::runWatchThread() {
-		HWINEVENTHOOK hHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, NULL, WinEventProcCb, 0, 0, WINEVENT_OUTOFCONTEXT);
+		HWINEVENTHOOK hHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_OBJECT_NAMECHANGE, NULL, WinEventProcCb, 0, 0, WINEVENT_OUTOFCONTEXT);
 
 		// store context for callback
 		ActiveWindow::smutex.lock();
@@ -458,6 +458,18 @@ namespace PaymoActiveWindow {
 	}
 
 	VOID CALLBACK ActiveWindow::WinEventProcCb(HWINEVENTHOOK hHook, DWORD event, HWND hWindow, LONG idObject, LONG idChild, DWORD eventThread, DWORD eventTime) {
+		if (event != EVENT_SYSTEM_FOREGROUND && event != EVENT_OBJECT_NAMECHANGE) {
+			// not interested in these
+			return;
+		}
+
+		HWND foregroundWindow = GetForegroundWindow();
+
+		if (event == EVENT_OBJECT_NAMECHANGE && hWindow != foregroundWindow) {
+			// name changed, but not for current window
+			return;
+		}
+
 		// get context
 		ActiveWindow::smutex.lock();
 		ActiveWindow* aw = ActiveWindow::winEventProcCbCtx[hHook];
