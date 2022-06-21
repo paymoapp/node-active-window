@@ -10,6 +10,14 @@ namespace PaymoActiveWindow {
 	}
 
 	ActiveWindow::~ActiveWindow() {
+		// stop watch thread
+		if (this->watchThread != NULL) {
+			this->threadShouldExit.store(true, std::memory_order_relaxed);
+			this->watchThread->join();
+			delete this->watchThread;
+			this->watchThread = NULL;
+		}
+
 		XCloseDisplay(this->display);
 		this->display = NULL;
 	}
@@ -56,6 +64,28 @@ namespace PaymoActiveWindow {
 			delimPos = xdgDataDirs.find(":", startPos);
 		}
 		this->loadDesktopEntriesFromDirectory(xdgDataDirs.substr(startPos, delimPos - startPos) + "/applications");
+	}
+
+	watch_t ActiveWindow::watchActiveWindow(watch_callback cb) {
+		watch_t watchId = this->nextWatchId++;
+
+		this->mutex.lock();
+		this->watches[watchId] = cb;
+		this->mutex.unlock();
+
+		// start thread if not started
+		if (this->watchThread == NULL) {
+			this->threadShouldExit.store(false, std::memory_order_relaxed);
+			this->watchThread = new std::thread(&ActiveWindow::runWatchThread, this);
+		}
+
+		return watchId;
+	}
+
+	void ActiveWindow::unwatchActiveWindow(watch_t watch) {
+		this->mutex.lock();
+		this->watches.erase(watch);
+		this->mutex.unlock();
 	}
 
 	Window ActiveWindow::getFocusedWindow() {
@@ -417,5 +447,54 @@ namespace PaymoActiveWindow {
 		std::string icon(buf.begin(), buf.end());
 
 		return "data:image/png;base64," + base64_encode(icon);
+	}
+
+	void ActiveWindow::runWatchThread() {
+		Atom activeWindowProperty = XInternAtom(this->display, "_NET_ACTIVE_WINDOW", true);
+		Atom windowTitleProperty = XInternAtom(this->display, "_NET_WM_NAME", true);
+		Window root = DefaultRootWindow(this->display);
+
+		XSetWindowAttributes setAttributes;
+		setAttributes.event_mask = PropertyChangeMask;
+
+		XChangeWindowAttributes(this->display, root, CWEventMask, &setAttributes);
+
+		XEvent event;
+		while (!this->threadShouldExit.load(std::memory_order_relaxed)) {
+			if (XEventsQueued(this->display, QueuedAfterFlush) > 0) {
+				// handle all queued events
+				while (XEventsQueued(this->display, QueuedAlready) > 0) {
+					// handle event
+					XNextEvent(this->display, &event);
+
+					if (event.type != PropertyNotify || (event.xproperty.atom != activeWindowProperty && event.xproperty.atom != windowTitleProperty)) {
+						// not the event we're interested in
+						continue;
+					}
+
+					Window currentWindow = this->getFocusedWindow();
+					XChangeWindowAttributes(this->display, currentWindow, CWEventMask, &setAttributes);
+
+					WindowInfo* info = this->getActiveWindow();
+
+					// notify every callback
+					this->mutex.lock();
+					for (std::map<watch_t, watch_callback>::iterator it = this->watches.begin(); it != this->watches.end(); it++) {
+						try {
+							it->second(info);
+						}
+						catch (...) {
+							// doing nothing
+						}
+					}
+					this->mutex.unlock();
+
+					delete info;
+				}
+			}
+
+			// sleep 100ms
+			usleep(100000);
+		}
 	}
 }

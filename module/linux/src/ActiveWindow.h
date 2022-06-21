@@ -9,6 +9,10 @@
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
+#include <functional>
+#include <thread>
+#include <mutex>
+#include <atomic>
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -29,18 +33,30 @@ namespace PaymoActiveWindow {
 		std::string icon = "";
 	};
 
+	typedef unsigned int watch_t;
+	typedef std::function<void(WindowInfo*)> watch_callback;
+
 	class ActiveWindow {
 	public:
 		ActiveWindow();
 		~ActiveWindow();
 		WindowInfo* getActiveWindow();
 		void buildAppCache();
+		watch_t watchActiveWindow(watch_callback cb);
+		void unwatchActiveWindow(watch_t watch);
 	private:
 		Display* display = NULL;
 		std::map<std::string, std::string> appToIcon;
 		std::set<std::string> apps;
 
 		const std::vector<std::string> iconScalesPreference = { "256x256", "48x48", "22x22" };
+
+		watch_t nextWatchId = 1;
+
+		std::thread* watchThread = NULL;
+		std::mutex mutex;
+		std::atomic<bool> threadShouldExit;
+		std::map<watch_t, watch_callback> watches;
 
 		Window getFocusedWindow();
 		std::string getWindowTitle(Window win);
@@ -56,6 +72,7 @@ namespace PaymoActiveWindow {
 		std::string buildIconPath(std::string icon, std::string dir);
 		bool dirExists(std::string dir);
 		std::string encodePngIcon(std::string iconPath);
+		void runWatchThread();
 	};
 }
 
