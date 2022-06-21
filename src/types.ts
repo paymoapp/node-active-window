@@ -22,6 +22,8 @@ export interface WindowInfo {
 
 export interface Module<T> {
 	getActiveWindow(): T;
+	subscribe(callback: (windowInfo: WindowInfo) => void): number;
+	unsubscribe(watchId: number): void;
 	initialize?(): void;
 	requestPermissions?(): boolean;
 }

@@ -59,29 +59,26 @@ const objectDeepCompare = (a: any, b: any): boolean => {
 	}, true);
 };
 
-const checkInterval = setInterval(() => {
-	console.log('Checking window info');
-	try {
-		const rStart = Date.now();
-		const curWinInfo = ActiveWindow.getActiveWindow();
-		const rEnd = Date.now();
-
-		console.log('Fetching window info took:', rEnd - rStart, 'ms');
-
-		if (!objectDeepCompare(curWinInfo, winInfo)) {
-			// different
-			console.log('Broadcasting changes...');
-			broadcastData(wss, curWinInfo);
-			winInfo = curWinInfo;
-		}
-	} catch (e) {
-		console.log('ERROR:', e);
+const watchId = ActiveWindow.subscribe(curWinInfo => {
+	console.log('Got new window info');
+	if (curWinInfo == null) {
+		console.log('Got null window');
+		return;
 	}
-}, 3000);
+
+	if (!objectDeepCompare(curWinInfo, winInfo)) {
+		// different
+		console.log('Broadcasting changes...');
+		broadcastData(wss, curWinInfo);
+		winInfo = curWinInfo;
+	}
+});
+
+console.log('Started watching with ID:', watchId);
 
 process.on('SIGINT', () => {
 	console.log('Closing');
-	clearInterval(checkInterval);
+	ActiveWindow.unsubscribe(watchId);
 
 	wss.clients.forEach(client => {
 		client.terminate();

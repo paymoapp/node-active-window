@@ -473,7 +473,9 @@ namespace PaymoActiveWindow {
 					}
 
 					Window currentWindow = this->getFocusedWindow();
-					XChangeWindowAttributes(this->display, currentWindow, CWEventMask, &setAttributes);
+					if (currentWindow != None) {
+						XChangeWindowAttributes(this->display, currentWindow, CWEventMask, &setAttributes);
+					}
 
 					WindowInfo* info = this->getActiveWindow();
 

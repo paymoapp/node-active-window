@@ -14,7 +14,7 @@
 		"moduleResolution": "node",
 		"isolatedModules": true,
 		"declaration": true,
-		"typeRoots": ["./typings"]
+		"typeRoots": ["./typings", "./node_modules/@types"]
 	},
 	"include": ["src", "demo"]
 }
