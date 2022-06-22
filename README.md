@@ -4,12 +4,26 @@ NodeJS library using native modules to get the active window and some metadata (
 
 ### Table of Contents
 
+<!-- toc -->
+
 - [Native libraries](#native-libraries)
   - [Linux (`module/linux`)](#linux-modulelinux)
     - [Data structures](#data-structures)
     - [Public functions](#public-functions)
     - [Example](#example)
     - [Building](#building)
+  - [Windows (`module/windows`)](#windows-modulewindows)
+    - [Data structures](#data-structures-1)
+    - [Public functions](#public-functions-1)
+    - [Example](#example-1)
+    - [Building](#building-1)
+  - [MacOS (`module/macos`)](#macos-modulemacos)
+    - [Data structures](#data-structures-2)
+    - [Public functions](#public-functions-2)
+    - [Example](#example-2)
+    - [Building](#building-2)
+
+<!-- tocstop -->
 
 ## Native libraries
 
@@ -100,7 +114,7 @@ The background watch thread will not be closed, even if there're no more watches
 
 #### Example
 
-See `module/linux/demo.cpp` for an example.
+See `module/linux/demo/main.cpp` for an example.
 
 ```c++
 #include <iostream>
@@ -134,9 +148,270 @@ int main() {
 
 #### Building
 
-See `module/linux/Makefile` for a sample makefile. You need to check the `lib` target.
+See `module/linux/demo/Makefile` for a sample makefile. You need to check the `lib` target.
 
 You should use C++20 for building and you need to link the following libraries:
 - X11 (`-lX11`) - libx11-dev
 - ICU-UC (`-licuuc`) - libicu-dev
 - PThread (`-lpthread`) - libpthread-stubs0-dev
+
+### Windows (`module/windows`)
+
+#### Data structures
+
+###### 🗃 &nbsp;&nbsp; WindowInfo
+
+```c++
+struct WindowInfo {
+	std::wstring title = L""; // UTF16 encoded string of window title. Empty string if couldn't fetch
+	std::wstring application = L""; // UTF16 encoded string of application. Empty string if couldn't fetch
+	std::wstring path = L""; // UTF16 encoded string of executable path. Empty string if couldn't fetch
+	unsigned int pid = 0; // Process PID
+	bool isUWPApp = false; // if application is detected to be an Universal Windows Platform application
+	std::wstring uwpPackage = L""; // UTF16 encoded string of the UWP package name. Empty string if couldn't fetch
+	std::string icon = ""; // base64 encoded icon. Empty string if couldn't fetch
+};
+```
+
+###### 🗃 &nbsp;&nbsp; watch_t
+
+```c++
+typedef unsigned int watch_t;
+```
+
+###### 🗃 &nbsp;&nbsp; watch_callback
+
+```c++
+typedef std::function<void(WindowInfo*)> watch_callback;
+```
+
+#### Public functions
+
+###### 𝑓 &nbsp;&nbsp; Constructor
+
+```c++
+ActiveWindow();
+```
+
+###### 𝑓 &nbsp;&nbsp; getActiveWindow
+
+```c++
+WindowInfo* getActiveWindow();
+```
+
+Returns pointer to WindowInfo containing the gathered information about the current window. The pointer can be `NULL` in the case of an error or if there is no active window (ex: all the windows are minified or the desktop is selected). You should free up the allocated WindowInfo object using `delete`.
+
+###### 𝑓 &nbsp;&nbsp; watchActiveWindow
+
+```c++
+watch_t watchActiveWindow(watch_callback cb);
+```
+
+Sets up a watch for the active window. If there's a change in the current active window, or the title of the active window, the callback will be fired with the current active window. You don't need to call `getActiveWindow()` in the callback, you can use the supplied parameter.
+
+This method will also start a background watch thread if it's not already running. Please note that the callbacks will be executed on this thread, so you should assure thread safety.
+
+You __MUST NOT__ free up the WindowInfo object received in the parameter. If you need to store the active window you __SHOULD__ make a copy of it, since the WindowInfo object will be freed after calling all the callbacks.
+
+You should save the returned watch ID to unsubscribe later.
+
+###### 𝑓 &nbsp;&nbsp; unwatchActiveWindow
+
+```c++
+void unwatchActiveWindow(watch_t watch);
+```
+
+Removes the watch associated with the supplied watch ID.
+
+The background watch thread will not be closed, even if there're no more watches left. It will only be closed when the class's destructor is called.
+
+#### Example
+
+See `module/windows/demo/main.cpp` for an example.
+
+```c++
+#include <iostream>
+#include "ActiveWindow.h"
+
+using namespace std;
+using namespace PaymoActiveWindow;
+
+int main() {
+	ActiveWindow* activeWindow = new ActiveWindow();
+
+	WindowInfo* windowInfo = activeWindow->getActiveWindow();
+
+	if (windowInfo == NULL) {
+		cout<<"Could not get active window\n";
+	}
+	else {
+		wcout<<L"Title: "<<windowInfo->title<<"\n";
+		wcout<<L"Application: "<<windowInfo->application<<"\n";
+		wcout<<L"Executable path: "<<windowInfo->path<<"\n";
+		cout<<"PID: "<<windowInfo->pid<<"\n";
+		cout<<"Is UWP application: "<<(windowInfo->isUWPApp ? "Yes" : "No")<<"\n";
+		if (windowInfo->isUWPApp) {
+			wcout<<"UWP package name: "<<windowInfo->uwpPackage<<"\n";
+		}
+		cout<<"Icon: "<<windowInfo->icon<<"\n";
+	}
+
+	delete windowInfo;
+	delete activeWindow;
+
+	return 0;
+}
+```
+
+#### Building
+
+See `module/windows/demo/Makefile` for a sample makefile. You need to check the `lib` target. This is not a GNU makefile, it should be used with Microsoft's NMAKE.
+
+To prepare your environment, you need run the `vcvarsall.bat` batch script. If you checked the _install windows build tools_ box during the installation of NodeJS, you should find this file in the following location: `C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat`. So to gain access to the `nmake`, `cl` and `link` commands, execute this:
+
+```batch
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
+```
+
+You should use C++20 for building and you need to link the following libraries:
+- User32.lib
+- Shell32.lib
+- Version.lib
+- Shlwapi.lib
+- Gdi32.lib
+- Gdiplus.lib
+- Windowsapp.lib
+
+### MacOS (`module/macos`)
+
+#### Data structures
+
+###### 🗃 &nbsp;&nbsp; WindowInfo
+
+```c++
+struct WindowInfo {
+	std::string title; // UTF8 encoded string of window title. Empty string if couldn't fetch
+	std::string application; // UTF8 encoded string of application name
+	std::string path; // UTF8 encoded string of application path
+	int pid; // PID of process
+	std::string icon; // base64 encoded PNG icon
+}
+```
+
+###### 🗃 &nbsp;&nbsp; watch_t
+
+```c++
+typedef unsigned int watch_t;
+```
+
+###### 🗃 &nbsp;&nbsp; watch_callback
+
+```c++
+typedef std::function<void(WindowInfo*)> watch_callback;
+```
+
+#### Public functions
+
+###### 𝑓 &nbsp;&nbsp; Constructor
+
+```c++
+ActiveWindow();
+```
+
+###### 𝑓 &nbsp;&nbsp; getActiveWindow
+
+```c++
+WindowInfo* getActiveWindow();
+```
+
+Returns pointer to WindowInfo containing the gathered information about the current window. The pointer can be `NULL` in the case of an error or if there is no active window (ex: all the windows are minified). You should free up the allocated WindowInfo object using `delete`.
+
+###### 𝑓 &nbsp;&nbsp; requestScreenCaptureAccess
+
+```c++
+bool requestScreenCaptureAccess();
+```
+
+To access the title of the window the process requires the screen capture permission. To check it and request it you need to call this function. This function is non-blocking and will immediately return with the current status (false - permission denied, true - permission granted).
+
+The first time this function is called there will be a system popup instructing the user how he can grant this permission, but you should also include this information in your application, since it's a one-time popup that closes when you click outside of it.
+
+The application needs to be relaunched after granting the permission.
+
+###### 𝑓 &nbsp;&nbsp; watchActiveWindow
+
+```c++
+watch_t watchActiveWindow(watch_callback cb);
+```
+
+Sets up a watch for the active window. If there's a change in the current active window, the callback will be fired with the current active window. You don't need to call `getActiveWindow()` in the callback, you can use the supplied parameter.
+
+This method will use the observer set up on the main thread to listen to the events, so the main thread has to have a running NSRunLoop. If you integrate this library into a desktop application, then this should already be resolved. Otherwise (for example when using a console application), you have to manually run the RunLoop or call the `runLoop()` helper function which will block for 0.1ms.
+
+If you want to use the watch function, you __MUST__ use this library on the main thread, since the NSWorkspace notifications are only serviced on that thread.
+
+The callbacks are also executed on the main thread, so you shouldn't do anything blocking in them.
+
+You should save the returned watch ID to unsubscribe later.
+
+###### 𝑓 &nbsp;&nbsp; unwatchActiveWindow
+
+```c++
+void unwatchActiveWindow(watch_t watch);
+```
+
+Removes the watch associated with the supplied watch ID.
+
+###### 𝑓 &nbsp;&nbsp; runLoop
+
+```c++
+void runLoop();
+```
+
+A helper function which will run the thread's RunLoop for 0.1ms or until the first event is handled. This function should be called on the main thread.
+
+You should only use this function only if you don't have a running RunLoop on your main thread.
+
+#### Example
+
+See `module/macos/demo/main.mm` for an example.
+
+```c++
+#include <iostream>
+#include "ActiveWindow.h"
+
+using namespace std;
+using namespace PaymoActiveWindow;
+
+int main() {
+	ActiveWindow* activeWindow = new ActiveWindow();
+
+	WindowInfo* windowInfo = activeWindow->getActiveWindow();
+
+	if (windowInfo == NULL) {
+		cout<<"Could not get active window\n";
+	}
+	else {
+		cout<<"Title: "<<windowInfo->title<<"\n";
+		cout<<"Application: "<<windowInfo->application<<"\n";
+		cout<<"Executable path: "<<windowInfo->path<<"\n";
+		cout<<"PID: "<<windowInfo->pid<<"\n";
+		cout<<"Icon: "<<windowInfo->icon<<"\n";
+	}
+
+	delete windowInfo;
+	delete activeWindow;
+
+	return 0;
+}
+```
+
+#### Building
+
+See `module/macos/demo/Makefile` for a sample makefile. You need to check the `lib` target.
+
+You should use C++20 for building and you need to link the following libraries:
+- `-lc++`
+- `-framework Foundation`
+- `-framework AppKit`
+- `-framework ApplicationServices`
