@@ -35,4 +35,4 @@ clean:
 	$(RM) $(BUILDDIR)
 
 run:
-	$(BUILDDIR)/demo
+	$(BUILDDIR)/demo $(MODE)

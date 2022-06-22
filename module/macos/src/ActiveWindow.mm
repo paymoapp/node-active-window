@@ -2,18 +2,17 @@
 
 namespace PaymoActiveWindow {
 	ActiveWindow::ActiveWindow() {
-		// subscribe to active window change notification
-		NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
-		NSNotificationCenter* notificationCenter = [workspace notificationCenter];
-		this->observer = [notificationCenter addObserverForName:NSWorkspaceDidActivateApplicationNotification object: nil queue: nil usingBlock:^(NSNotification* notification) {
-		}];
+		this->registerObservers();
 	}
 
 	ActiveWindow::~ActiveWindow() {
-		// remove observer
+		// remove observers
 		NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
 		NSNotificationCenter* notificationCenter = [workspace notificationCenter];
-		[notificationCenter removeObserver:this->observer];
+
+		for (std::vector<id>::iterator it = this->observers.begin(); it != this->observers.end(); it++) {
+			[notificationCenter removeObserver:*it];
+		}
 	}
 
 	WindowInfo* ActiveWindow::getActiveWindow() {
@@ -54,18 +53,32 @@ namespace PaymoActiveWindow {
 		return this->hasScreenCaptureAccess;
 	}
 
+	watch_t ActiveWindow::watchActiveWindow(watch_callback cb) {
+		watch_t watchId = this->nextWatchId++;
+
+		this->watches[watchId] = cb;
+
+		return watchId;
+	}
+
+	void ActiveWindow::unwatchActiveWindow(watch_t watch) {
+		this->watches.erase(watch);
+	}
+
+	void ActiveWindow::runLoop() {
+		// run RunLoop for 0.1 ms or until first event is handled
+		CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.0001, true);
+	}
+
 	std::string ActiveWindow::encodeNSImage(NSImage* img) {
 		CGImageRef cgRef = [img CGImageForProposedRect:NULL context:nil hints:nil];
 		NSBitmapImageRep* imgRep = [[NSBitmapImageRep alloc] initWithCGImage:cgRef];
 		[imgRep setSize:[img size]];
-		NSData* pngData = [imgRep representationUsingType:NSBitmapImageFileTypePNG properties:nil];
+		NSData* pngData = [imgRep representationUsingType:NSBitmapImageFileTypePNG properties:[NSDictionary dictionary]];
 
 		unsigned int len = [pngData length];
 		std::vector<char> buf(len);
 		memcpy(buf.data(), [pngData bytes], len);
-
-		[imgRep release];
-		[pngData release];
 
 		std::string pngImg(buf.begin(), buf.end());
 
@@ -103,8 +116,29 @@ namespace PaymoActiveWindow {
 		return "";
 	}
 
-	void ActiveWindow::runLoop() {
-		// run RunLoop for 1 ms or until first event is handled
-		CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.001, true);
+	void ActiveWindow::registerObservers() {
+		NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
+		NSNotificationCenter* notificationCenter = [workspace notificationCenter];
+
+		this->observers.push_back([notificationCenter addObserverForName:NSWorkspaceDidActivateApplicationNotification object:nil queue:nil usingBlock:^(NSNotification* notification) {
+			this->handleNotification();
+		}]);
+	}
+
+	void ActiveWindow::handleNotification() {
+		WindowInfo* info = this->getActiveWindow();
+
+		info->title = this->getWindowTitle(info->pid);
+
+		for (std::map<watch_t, watch_callback>::iterator it = this->watches.begin(); it != this->watches.end(); it++) {
+			try {
+				it->second(info);
+			}
+			catch (...) {
+				// doing nothing
+			}
+		}
+
+		delete info;
 	}
 }
