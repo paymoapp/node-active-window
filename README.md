@@ -1,4 +1,4 @@
-# node-active-win
+# Node Active Window
 
 NodeJS library using native modules to get the active window and some metadata (including the application icon) on Windows, MacOS and Linux.
 
@@ -6,24 +6,174 @@ NodeJS library using native modules to get the active window and some metadata (
 
 <!-- toc -->
 
+- [Getting started](#getting-started)
+    - [Installation](#installation)
+    - [Native addon](#native-addon)
+    - [Example](#example)
+- [API](#api)
+    - [Data structures](#data-structures)
+    - [Functions](#functions)
 - [Native libraries](#native-libraries)
   - [Linux (`module/linux`)](#linux-modulelinux)
-    - [Data structures](#data-structures)
+    - [Data structures](#data-structures-1)
     - [Public functions](#public-functions)
-    - [Example](#example)
+    - [Example](#example-1)
     - [Building](#building)
   - [Windows (`module/windows`)](#windows-modulewindows)
-    - [Data structures](#data-structures-1)
+    - [Data structures](#data-structures-2)
     - [Public functions](#public-functions-1)
-    - [Example](#example-1)
+    - [Example](#example-2)
     - [Building](#building-1)
   - [MacOS (`module/macos`)](#macos-modulemacos)
-    - [Data structures](#data-structures-2)
+    - [Data structures](#data-structures-3)
     - [Public functions](#public-functions-2)
-    - [Example](#example-2)
+    - [Example](#example-3)
     - [Building](#building-2)
 
 <!-- tocstop -->
+
+## Getting started
+
+#### Installation
+
+```bash
+npm install --save @paymo/active-window
+```
+
+#### Native addon
+
+This project uses NodeJS Native Addons to function, so you can use this library in any NodeJS or Electron project, there won't be any problem with bundling and code signing.
+
+The project uses [node-pre-gyp](https://www.npmjs.com/package/@mapbox/node-pre-gyp) to supply prebuilt libraries.
+
+The project uses Node-API version 6, you can check [this table](https://nodejs.org/api/n-api.html#node-api-version-matrix) to see which node versions are supported.
+
+If there's a compliant prebuilt binary, it will be downloaded during installation, or it will be built. You can also rebuild it anytime by running `npm run build:gyp`.
+
+The library has native addons for all the three major operating systems: Windows, MacOS and Linux. For Linux, only the X11 windowing system is supported.
+
+#### Example
+
+You can run a demo application by calling `npm run demo`. You can browse it's source code for a detailed example using the watch API in `demo/index.ts`.
+
+```ts
+import ActiveWindow from '@paymo/active-window';
+
+ActiveWindow.initialize();
+
+if (!ActiveWindow.requestPermissions()) {
+	console.log('Error: You need to grant screen recording permission in System Preferences > Security & Privacy > Privacy > Screen Recording');
+	process.exit(0);
+}
+
+const activeWin = ActiveWindow.getActiveWindow();
+
+console.log('Window title:', activeWin.title);
+console.log('Application:', activeWin.application);
+console.log('Application path:', activeWin.path);
+console.log('Application PID:', activeWin.pid);
+console.log('Application icon:', activeWin.icon);
+```
+
+## API
+
+#### Data structures
+
+###### 🗃 &nbsp;&nbsp; WindowInfo
+
+```ts
+interface WindowInfo {
+	title: string;
+	application: string;
+	path: string;
+	pid: number;
+	icon: string;
+	windows?: {
+		isUWPApp: boolean;
+		uwpPackage: string;
+	};
+}
+```
+
+This is the only object you will receive when interacting with this library. It contains information about the currently active window:
+
+- `title` - The title of the current window
+- `application` - The name of the application. On Windows you should use the `uwpPackage` parameter instead if `isUWPApp` is set to true
+- `path` - The path to the application's executable
+- `pid` - Process identifier of the application
+- `icon` - Base64 encoded string representing the application icon
+- `windows` - Object containing Windows platform specific information, undefined on other platforms
+- `windows.isUWPApp` - Set to `true` if the active window is owned by an [Universal Windows Platform](https://docs.microsoft.com/en-us/windows/uwp/get-started/universal-application-platform-guide) application
+- `windows.uwpPackage` - Contains the package family name of the UWP application
+
+None of the parameters are nullable, even if their value couldn't be fetched, they will be either be set to an empty string (for the string values), -1 (for the numeric values) or false (for the boolean values).
+
+#### Functions
+
+###### 𝑓 &nbsp;&nbsp; getActiveWindow
+
+```ts
+interface IActiveWindow {
+	getActiveWindow(): WindowInfo
+	// ...
+}
+```
+
+Requests the current foreground window in a synchronous way. It will throw an error if the current window couldn't be fetched (for example there're no focused windows at the moment).
+
+###### 𝑓 &nbsp;&nbsp; subscribe
+
+```ts
+interface IActiveWindow {
+	subscribe(callback: (windowInfo: WindowInfo | null) => void): number;
+	// ...
+}
+```
+
+Subscribe to changes of the active window. The supplied callback will be called with `null` if there're no focused windows at the moment.
+
+The function returns a number representing the ID of the watch. You should store this value to remove the event listener later on.
+
+###### 𝑓 &nbsp;&nbsp; unsubscribe
+
+```ts
+interface IActiveWindow {
+	unsubscribe(watchId: number): void;
+	// ...
+}
+```
+
+Remove the event listener associated with the supplied watch ID. Use this to unsubscribe from the active window changed events.
+
+###### 𝑓 &nbsp;&nbsp; initialize
+
+```ts
+interface IActiveWindow {
+	initialize(): void;
+	// ...
+}
+```
+
+On some platforms (Linux and MacOS) the library needs some initialization to be done. You should call this function before doing anything with the library regardless of the current platform.
+
+###### 𝑓 &nbsp;&nbsp; requestPermissions
+
+```ts
+interface IActiveWindow {
+	requestPermissions(): boolean;
+	// ...
+}
+```
+
+On the MacOS platform you need to request screen recording permission to fetch the title of the current window.
+
+The function will return `true` if the permission is granted and `false` if the permission is denied. This is a non-blocking function, so you will only get the momentary status.
+
+You can call this function regardless of the current platform. On unsupported platforms it will simply return `true`.
+
+When the function is called, the user will be presented with a system modal with instructions to grant the permission. You should include these instructions in your application as well, since this is a one-time modal. After the user grants the permission, it is required to relaunch the application for the changes to take effect.
+
+If the user fails to grant the required permissions, the `title` property of the returned `WindowInfo` will be an empty string.
 
 ## Native libraries
 
