@@ -82,6 +82,17 @@ const ActiveWindow: IActiveWindow = {
 		if (addon.initialize) {
 			addon.initialize();
 		}
+
+		// set up runloop on MacOS
+		if (process.platform == "darwin") {
+			const interval = setInterval(() => {
+				if(addon && addon.runLoop) {
+					addon.runLoop();
+				} else {
+					clearInterval(interval);
+				}
+			}, 100);
+		}
 	},
 	requestPermissions: (): boolean => {
 		if (!addon) {

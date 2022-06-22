@@ -26,9 +26,10 @@ export interface Module<T> {
 	unsubscribe(watchId: number): void;
 	initialize?(): void;
 	requestPermissions?(): boolean;
+	runLoop?(): void
 }
 
-export interface IActiveWindow extends Module<WindowInfo> {
+export interface IActiveWindow extends Omit<Module<WindowInfo>, 'runLoop'> {
 	initialize(): void;
 	requestPermissions(): boolean;
 }
