@@ -19,7 +19,14 @@
 						"Gdi32.lib",
 						"Gdiplus.lib",
 						"Windowsapp.lib"
-					]
+					],
+					"msvs_settings": {
+						"VCCLCompilerTool": {
+							"AdditionalOptions": [
+								"-std:c++20"
+							]
+						}
+					}
 				}],
 				["OS=='linux'", {
 					"sources": [
@@ -34,7 +41,8 @@
 						"-licuuc"
 					],
 					"cflags_cc": [
-						"-fexceptions"
+						"-fexceptions",
+						"--std=c++2a"
 					]
 				}],
 				["OS=='mac'", {

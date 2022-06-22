@@ -1,6 +1,9 @@
 #include "ActiveWindow.h"
 
 namespace PaymoActiveWindow {
+	std::mutex ActiveWindow::smutex;
+	std::map<HWINEVENTHOOK, ActiveWindow*> ActiveWindow::winEventProcCbCtx;
+
 	ActiveWindow::ActiveWindow() {
 		// initialize GDI+
 		Gdiplus::GdiplusStartupInput gdiPlusStartupInput;

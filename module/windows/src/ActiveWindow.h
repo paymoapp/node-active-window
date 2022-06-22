@@ -50,8 +50,8 @@ namespace PaymoActiveWindow {
 		std::atomic<bool> threadShouldExit;
 		std::map<watch_t, watch_callback> watches;
 
-		static inline std::mutex smutex;
-		static inline std::map<HWINEVENTHOOK, ActiveWindow*> winEventProcCbCtx;
+		static std::mutex smutex;
+		static std::map<HWINEVENTHOOK, ActiveWindow*> winEventProcCbCtx;
 
 		std::wstring getWindowTitle(HWND hWindow);
 		std::wstring getProcessPath(HANDLE hProc);
