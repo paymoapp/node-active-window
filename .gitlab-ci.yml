@@ -1,0 +1,108 @@
+variables:
+  TEST_IMAGE: "node:14-alpine"
+  BUILD_IMAGE: "gitlab.paymoapp.com:5555/gergo/img-node-addon-build"
+
+# Mixins
+.only_any_v_tags:
+  only:
+    - /^v[0-9]+\.[0-9]+\.[0-9]+/
+  except:
+    - branches
+
+.only_release_v_tags:
+  only:
+    - /^v[0-9]+\.[0-9]+\.[0-9]+$/
+  except:
+    - branches
+
+.job_test:
+  image: $TEST_IMAGE
+  stage: test
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_TAG
+  before_script:
+    - npm ci --ignore-scripts
+
+.job_build_addon:
+  stage: build-addon
+  before_script:
+    - npm ci --ignore-scripts
+  script:
+    - npm run build:gyp
+    - npm run publish:bindings
+  needs:
+    - lint
+    - typecheck
+
+stages:
+  - test
+  - build-addon
+  - publish
+
+# Test stage
+lint:
+  extends:
+    - .job_test
+  script:
+    - npm run lint
+
+typecheck:
+  extends:
+    - .job_test
+  script:
+    - npm run typecheck
+
+# Build-addon stage
+build-addon-windows:
+  extends:
+    - .only_any_v_tags
+    - .job_build_addon
+  tags:
+    - win
+
+build-addon-mac-x64:
+  extends:
+    - .only_any_v_tags
+    - .job_build_addon
+  tags:
+    - osx
+  script:
+    - npm run build:gyp -- --target_arch=x64
+    - npm run publish:bindings
+
+build-addon-max-arm64:
+  extends:
+    - .only_any_v_tags
+    - .job_build_addon
+  tags:
+    - osx
+  script:
+    - npm run build:gyp -- --target_arch=arm64
+    - npm run publish:bindings
+
+build-addon-linux:
+  extends:
+    - .only_any_v_tags
+    - .job_build_addon
+  image: $BUILD_IMAGE
+
+# Publish stage
+build-library:
+  extends:
+    - .only_any_v_tags
+  image: $BUILD_IMAGE
+  stage: publish
+  before_script:
+    - npm ci --ignore-scripts
+  scripts:
+    - npm run build:ts
+    # - npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
+    # - npm publish
+  artifacts:
+    paths:
+      - dist
+    expire_in: 12h
+  needs:
+    - lint
+    - typecheck
