@@ -29,6 +29,9 @@
     "package_name": "{module_name}-v{version}-{platform}-{arch}-napi{napi_build_version}.tar.gz",
     "napi_versions": [6]
   },
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git@gitlab.paymoapp.com:gergo/node-active-window.git"

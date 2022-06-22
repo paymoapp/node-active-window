@@ -22,11 +22,11 @@ export interface WindowInfo {
 
 export interface Module<T> {
 	getActiveWindow(): T;
-	subscribe(callback: (windowInfo: WindowInfo) => void): number;
+	subscribe(callback: (windowInfo: T | null) => void): number;
 	unsubscribe(watchId: number): void;
 	initialize?(): void;
 	requestPermissions?(): boolean;
-	runLoop?(): void
+	runLoop?(): void;
 }
 
 export interface IActiveWindow extends Omit<Module<WindowInfo>, 'runLoop'> {

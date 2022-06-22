@@ -54,12 +54,16 @@ const ActiveWindow: IActiveWindow = {
 
 		return encodeWindowInfo(info);
 	},
-	subscribe: (callback: (windowInfo: WindowInfo) => void): number => {
+	subscribe: (callback: (windowInfo: WindowInfo | null) => void): number => {
 		if (!addon) {
 			throw new Error('Failed to load native addon');
 		}
 
-		const watchId = addon.subscribe(callback);
+		const watchId = addon.subscribe(nativeWindowInfo => {
+			callback(
+				!nativeWindowInfo ? null : encodeWindowInfo(nativeWindowInfo)
+			);
+		});
 
 		return watchId;
 	},
@@ -84,9 +88,9 @@ const ActiveWindow: IActiveWindow = {
 		}
 
 		// set up runloop on MacOS
-		if (process.platform == "darwin") {
+		if (process.platform == 'darwin') {
 			const interval = setInterval(() => {
-				if(addon && addon.runLoop) {
+				if (addon && addon.runLoop) {
 					addon.runLoop();
 				} else {
 					clearInterval(interval);
