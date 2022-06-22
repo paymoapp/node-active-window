@@ -23,9 +23,11 @@
   },
   "binary": {
     "module_name": "PaymoActiveWindow",
-    "module_path": "./module/binding",
+    "module_path": "./module/binding/napi{napi_build_version}",
     "host": "https://paymo-node-addons-prebuilt.s3.amazonaws.com",
-    "remote_path": "./node-active-window/v{version}"
+    "remote_path": "./node-active-window/v{version}",
+    "package_name": "{module_name}-v{version}-{platform}-{arch}-napi{napi_build_version}.tar.gz",
+    "napi_versions": [6]
   },
   "repository": {
     "type": "git",
