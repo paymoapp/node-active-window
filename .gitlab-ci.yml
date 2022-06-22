@@ -95,7 +95,7 @@ build-library:
   stage: publish
   before_script:
     - npm ci --ignore-scripts
-  scripts:
+  script:
     - npm run build:ts
     # - npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
     # - npm publish
