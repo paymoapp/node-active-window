@@ -18,7 +18,8 @@
     "lint:watch": "esw --color --fix --watch --cache --ext .ts src demo",
     "format": "prettier --write src demo",
     "release": "standard-version",
-    "release:pre": "standard-version --prerelease"
+    "release:pre": "standard-version --prerelease",
+    "generate:readme-toc": "markdown-toc -i --bullets=\"-\" --maxdepth=4 README.md"
   },
   "binary": {
     "module_name": "PaymoActiveWindow",
@@ -51,6 +52,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-watch": "^8.0.0",
     "fs-extra": "^10.1.0",
+    "markdown-toc": "^1.2.0",
     "node-fetch": "^3.2.4",
     "node-gyp": "^9.0.0",
     "prettier": "^2.6.2",
