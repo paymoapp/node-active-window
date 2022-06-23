@@ -300,9 +300,8 @@ int main() {
 
 See `module/linux/demo/Makefile` for a sample makefile. You need to check the `lib` target.
 
-You should use C++20 for building and you need to link the following libraries:
+You should use C++17 for building and you need to link the following libraries:
 - X11 (`-lX11`) - libx11-dev
-- ICU-UC (`-licuuc`) - libicu-dev
 - PThread (`-lpthread`) - libpthread-stubs0-dev
 
 ### Windows (`module/windows`)

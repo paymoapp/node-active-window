@@ -286,17 +286,15 @@ namespace PaymoActiveWindow {
 	}
 
 	std::string ActiveWindow::processStringForIndex(std::string str) {
-		icu::UnicodeString ustr(str.c_str());
-		ustr.toLower();
+		std::string result = str;
+		std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
+			return std::tolower(c);
+		});
 
-		// replace 
-		ustr.findAndReplace(u8" ", u8"-");
-		ustr.findAndReplace(u8"_", u8"-");
-		
-		std::string processed;
-		ustr.toUTF8String(processed);
+		std::replace(result.begin(), result.end(), ' ', '-');
+		std::replace(result.begin(), result.end(), '_', '-');
 
-		return processed;
+		return result;
 	}
 
 	std::string ActiveWindow::resolveIconPath(std::string icon) {

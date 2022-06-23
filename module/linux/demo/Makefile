@@ -7,7 +7,7 @@ BUILDDIR=build
 SRCS=$(LIBDIR)/ActiveWindow.cpp $(LIBDIR)/base64.cpp $(LIBDIR)/ConvertUTF.c
 OBJS=$(patsubst $(LIBDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
 LDOPTS=-lX11 -licuuc -lpthread
-CXXOPTS=--std=c++2a
+CXXOPTS=--std=c++17
 
 all: demo
 

@@ -38,11 +38,12 @@
 					],
 					"libraries": [
 						"-lX11",
-						"-licuuc"
+						"-lpthread",
+						"-static-libstdc++"
 					],
 					"cflags_cc": [
 						"-fexceptions",
-						"--std=c++2a"
+						"--std=c++17"
 					]
 				}],
 				["OS=='mac'", {

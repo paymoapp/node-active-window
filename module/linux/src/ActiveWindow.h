@@ -16,7 +16,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include <unicode/unistr.h>
 #include <sys/stat.h>
 #include "SimpleIni.h"
 #include "base64.h"
