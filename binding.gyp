@@ -23,7 +23,7 @@
 					"msvs_settings": {
 						"VCCLCompilerTool": {
 							"AdditionalOptions": [
-								"-std:c++20"
+								"-std:c++17"
 							]
 						}
 					}
@@ -60,7 +60,7 @@
 						"-framework ApplicationServices"
 					],
 					"xcode_settings": {
-						"CLANG_CXX_LANGUAGE_STANDARD": "c++20",
+						"CLANG_CXX_LANGUAGE_STANDARD": "c++17",
 						"GCC_ENABLE_CPP_EXCEPTIONS": "YES"
 					}
 				}]

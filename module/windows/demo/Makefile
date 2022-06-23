@@ -2,7 +2,7 @@ LIBDIR=..\src
 BUILDDIR=build
 
 LIBS=User32.lib Shell32.lib Version.lib Shlwapi.lib Gdiplus.lib Gdi32.lib Windowsapp.lib
-CLOPTS=/std:c++20
+CLOPTS=/std:c++17
 
 all: create_dir demo
 

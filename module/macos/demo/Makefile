@@ -4,7 +4,7 @@ RM=rm -R
 LIBDIR=../src
 BUILDDIR=build
 
-CXXFLAGS=-ObjC++ -std=c++20
+CXXFLAGS=-ObjC++ -std=c++17
 LDOPTS=-lc++ -framework Foundation -framework AppKit -framework ApplicationServices
 
 all: demo

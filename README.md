@@ -422,7 +422,7 @@ To prepare your environment, you need run the `vcvarsall.bat` batch script. If y
 "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
 ```
 
-You should use C++20 for building and you need to link the following libraries:
+You should use C++17 for building and you need to link the following libraries:
 - User32.lib
 - Shell32.lib
 - Version.lib
@@ -559,7 +559,7 @@ int main() {
 
 See `module/macos/demo/Makefile` for a sample makefile. You need to check the `lib` target.
 
-You should use C++20 for building and you need to link the following libraries:
+You should use C++17 for building and you need to link the following libraries:
 - `-lc++`
 - `-framework Foundation`
 - `-framework AppKit`
