@@ -70,7 +70,7 @@ build-addon-mac-x64:
   script:
     - npm run build:gyp:configure -- --target_arch=x64
     - npm run build:gyp:run -- --target_arch=x64
-    - npm run publish:bindings
+    - npm run publish:bindings -- --target_arch=x64
 
 build-addon-mac-arm64:
   extends:
@@ -81,7 +81,7 @@ build-addon-mac-arm64:
   script:
     - npm run build:gyp:configure -- --target_arch=arm64
     - npm run build:gyp:run -- --target_arch=arm64
-    - npm run publish:bindings
+    - npm run publish:bindings -- --target_arch=arm64
 
 build-addon-linux:
   extends:
