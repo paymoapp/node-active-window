@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1-3](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v0.1.1-2...v0.1.1-3) (2022-06-23)
+
+
+### Build/CI
+
+* **gitlab:** M1 has arm64 arch not arm ([67475d7](https://gitlab.paymoapp.com/gergo/node-active-window/commit/67475d7ff7f2d48bd0aca18baca38d0e071dae54))
+
 ### [0.1.1-2](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v0.1.1-1...v0.1.1-2) (2022-06-23)
 
 
