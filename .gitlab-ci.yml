@@ -68,17 +68,19 @@ build-addon-mac-x64:
   tags:
     - osx
   script:
-    - npm run build:gyp -- --target_arch=x64
+    - npm run build:gyp:configure -- --target_arch=x64
+    - npm run build:gyp:run -- --target_arch=x64
     - npm run publish:bindings
 
-build-addon-max-arm64:
+build-addon-mac-arm64:
   extends:
     - .only_any_v_tags
     - .job_build_addon
   tags:
     - osx
   script:
-    - npm run build:gyp -- --target_arch=arm64
+    - npm run build:gyp:configure -- --target_arch=arm
+    - npm run build:gyp:run -- --target_arch=arm
     - npm run publish:bindings
 
 build-addon-linux:
