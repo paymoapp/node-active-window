@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1-2](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v0.1.1-1...v0.1.1-2) (2022-06-23)
+
+
+### Build/CI
+
+* Fixing mac build ([00dc5ca](https://gitlab.paymoapp.com/gergo/node-active-window/commit/00dc5cac83ecafb89c2012836de699b27dfd3a2c))
+
 ### [0.1.1-1](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v0.1.1-0...v0.1.1-1) (2022-06-23)
 
 ### 0.1.1-0 (2022-06-22)
