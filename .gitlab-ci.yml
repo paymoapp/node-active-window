@@ -60,6 +60,9 @@ build-addon-windows:
     - .job_build_addon
   tags:
     - win
+  before_script:
+    - npm config set msvs_version 2022
+    - npm ci --ignore-scripts
 
 build-addon-mac-x64:
   extends:
