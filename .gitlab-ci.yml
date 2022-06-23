@@ -79,8 +79,8 @@ build-addon-mac-arm64:
   tags:
     - osx
   script:
-    - npm run build:gyp:configure -- --target_arch=arm
-    - npm run build:gyp:run -- --target_arch=arm
+    - npm run build:gyp:configure -- --target_arch=arm64
+    - npm run build:gyp:run -- --target_arch=arm64
     - npm run publish:bindings
 
 build-addon-linux:
