@@ -1,6 +1,7 @@
 variables:
   TEST_IMAGE: "node:14-alpine"
-  BUILD_IMAGE: "gitlab.paymoapp.com:5555/gergo/img-node-addon-build"
+  BUILD_IMAGE: "node:14-alpine"
+  ADDON_BUILD_IMAGE: "gitlab.paymoapp.com:5555/gergo/img-ubuntu-widget-build"
 
 # Mixins
 .only_any_v_tags:
@@ -90,7 +91,7 @@ build-addon-linux:
   extends:
     - .only_any_v_tags
     - .job_build_addon
-  image: $BUILD_IMAGE
+  image: $ADDON_BUILD_IMAGE
 
 # Publish stage
 build-library:
