@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1-6](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v0.1.1-5...v0.1.1-6) (2022-06-24)
+
+
+### Build/CI
+
+* Using img-ubuntu-widget-build for building the linux addon ([e0857f8](https://gitlab.paymoapp.com/gergo/node-active-window/commit/e0857f8617217d646ee0fc614a63f4e8e7aee9f0))
+
 ### [0.1.1-5](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v0.1.1-4...v0.1.1-5) (2022-06-23)
 
 ### [0.1.1-4](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v0.1.1-3...v0.1.1-4) (2022-06-23)
