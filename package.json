@@ -3,9 +3,8 @@
   "version": "1.0.2",
   "description": "NodeJS library using native modules to get the active window and some metadata (including the application icon) on Windows, MacOS and Linux.",
   "main": "dist/index.js",
-  "gypfile": false,
   "scripts": {
-    "postinstall": "node-pre-gyp install --fallback-to-build",
+    "install": "node-pre-gyp install --fallback-to-build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "demo": "ts-node --project tsconfig.json demo/index.ts",
     "build": "npm run clean && npm run build:ts && npm run build:gyp",
@@ -35,7 +34,9 @@
     ]
   },
   "files": [
-    "dist"
+    "dist",
+    "module",
+    "binding.gyp"
   ],
   "repository": {
     "type": "git",
