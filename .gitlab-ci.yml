@@ -109,7 +109,9 @@ build-library:
     # - npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
     # - npm publish
     - LAST_RELEASE="$(git describe --abbrev=0 --tags ${CI_COMMIT_TAG}^)"
-    - node scripts/make-gitlab-release.js "$(git diff -U0 $LAST_RELEASE $CI_COMMIT_TAG CHANGELOG.md | grep -E "^\+" | grep -vE "^\+\+\+" | sed "s/^\+//")"
+    - CHANGELOG="$(git diff -U0 $LAST_RELEASE $CI_COMMIT_TAG CHANGELOG.md | grep -E "^\+" | grep -vE "^\+\+\+" | sed "s/^\+//")"
+    - >
+      curl -sSL -X POST -H "JOB-TOKEN: $CI_JOB_TOKEN" -H "Content-type: application/json" -d "{ \"name\": $(echo $CI_COMMIT_TAG | jq -Ra .), \"tag_name\": $(echo $CI_COMMIT_TAG | jq -Ra .), \"description\": $(echo $CHANGELOG | jq -Rsa .) }" ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases
   artifacts:
     paths:
       - dist

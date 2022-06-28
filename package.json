@@ -63,7 +63,6 @@
     "eslint-watch": "^8.0.0",
     "fs-extra": "^10.1.0",
     "markdown-toc": "^1.2.0",
-    "node-fetch": "^3.2.4",
     "node-gyp": "^9.0.0",
     "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
