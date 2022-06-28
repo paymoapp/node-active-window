@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.2](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v1.0.1...v1.0.2) (2022-06-28)
+
+
+### Bug Fixes
+
+* Use postinstall script to download addon when installed as a dependency ([03f2ee3](https://gitlab.paymoapp.com/gergo/node-active-window/commit/03f2ee3a4bdae60f23796737a852dfcb8eaa08a9))
+
 ### [1.0.1](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v1.0.0...v1.0.1) (2022-06-28)
 
 
