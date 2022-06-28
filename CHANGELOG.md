@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1-12](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v0.1.1-11...v0.1.1-12) (2022-06-28)
+
 ### [0.1.1-11](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v0.1.1-10...v0.1.1-11) (2022-06-28)
 
 
