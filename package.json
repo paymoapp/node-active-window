@@ -2,7 +2,7 @@
   "name": "@paymo/active-window",
   "version": "1.0.5",
   "description": "NodeJS library using native modules to get the active window and some metadata (including the application icon) on Windows, MacOS and Linux.",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install": "node-pre-gyp install --fallback-to-build",
