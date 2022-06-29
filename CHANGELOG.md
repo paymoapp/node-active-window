@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.5](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v1.0.4...v1.0.5) (2022-06-29)
+
+
+### Bug Fixes
+
+* Try to make NPM run the install script ([6cf26b7](https://gitlab.paymoapp.com/gergo/node-active-window/commit/6cf26b73328fa015a1eb899f6429f08f2dde05fa))
+
 ### [1.0.4](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v1.0.3...v1.0.4) (2022-06-28)
 
 ### [1.0.3](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v1.0.2...v1.0.3) (2022-06-28)
