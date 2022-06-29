@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.6](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v1.0.5...v1.0.6) (2022-06-29)
+
+
+### Bug Fixes
+
+* Relative path of main in package.json ([dab02a5](https://gitlab.paymoapp.com/gergo/node-active-window/commit/dab02a575ba9ea5ed083c3e82c0c55ddc5d226ae))
+
 ### [1.0.5](https://gitlab.paymoapp.com/gergo/node-active-window/compare/v1.0.4...v1.0.5) (2022-06-29)
 
 
