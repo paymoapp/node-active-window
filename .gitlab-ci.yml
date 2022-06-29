@@ -103,11 +103,11 @@ build-library:
     - npm ci --ignore-scripts
   script:
     - npm run build:ts
-    - npm set @paymo:registry https://gitlab.paymoapp.com/api/v4/projects/$CI_PROJECT_ID/packages/npm/
-    - npm set //gitlab.paymoapp.com/api/v4/projects/$CI_PROJECT_ID/packages/npm/:_authToken $CI_JOB_TOKEN
-    - npm publish
-    # - npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
+    # - npm set @paymo:registry https://gitlab.paymoapp.com/api/v4/projects/$CI_PROJECT_ID/packages/npm/
+    # - npm set //gitlab.paymoapp.com/api/v4/projects/$CI_PROJECT_ID/packages/npm/:_authToken $CI_JOB_TOKEN
     # - npm publish
+    - npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
+    - npm publish --access public
     - LAST_RELEASE="$(git describe --abbrev=0 --tags ${CI_COMMIT_TAG}^)"
     - CHANGELOG="$(git diff -U0 $LAST_RELEASE $CI_COMMIT_TAG CHANGELOG.md | grep -E "^\+" | grep -vE "^\+\+\+" | grep -vE "^\+#+ \[" | sed "s/^\+//")"
     - >

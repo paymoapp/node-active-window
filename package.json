@@ -1,5 +1,5 @@
 {
-  "name": "@paymo/active-window",
+  "name": "@paymoapp/active-window",
   "version": "1.0.6",
   "description": "NodeJS library using native modules to get the active window and some metadata (including the application icon) on Windows, MacOS and Linux.",
   "main": "./dist/index.js",
@@ -40,7 +40,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@gitlab.paymoapp.com:gergo/node-active-window.git"
+    "url": "git@gitlab.paymoapp.com:paymo/node-active-window.git"
   },
   "keywords": [
     "node",
