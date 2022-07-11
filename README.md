@@ -37,7 +37,7 @@ NodeJS library using native modules to get the active window and some metadata (
 #### Installation
 
 ```bash
-npm install --save @paymo/active-window
+npm install --save @paymoapp/active-window
 ```
 
 #### Native addon
@@ -57,7 +57,7 @@ The library has native addons for all the three major operating systems: Windows
 You can run a demo application by calling `npm run demo`. You can browse it's source code for a detailed example using the watch API in `demo/index.ts`.
 
 ```ts
-import ActiveWindow from '@paymo/active-window';
+import ActiveWindow from '@paymoapp/active-window';
 
 ActiveWindow.initialize();
 
