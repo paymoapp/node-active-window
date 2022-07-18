@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.9](https://github.com/paymoapp/node-active-window/compare/v1.0.8...v1.0.9) (2022-07-18)
+
+
+### Documentation
+
+* Fixed namespace in README ([efb4692](https://github.com/paymoapp/node-active-window/commit/efb4692ff5ce0ad0e1116a649c373cb7a586c33a))
+
 ### [1.0.8](https://github.com/paymoapp/node-active-window/compare/v1.0.7...v1.0.8) (2022-06-29)
 
 ### [1.0.7](https://gitlab.paymoapp.com/paymo/node-active-window/compare/v1.0.6...v1.0.7) (2022-06-29)
