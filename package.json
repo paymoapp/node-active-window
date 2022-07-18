@@ -40,7 +40,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/paymoapp/node-active-window.git"
+    "url": "https://github.com/paymoapp/node-active-window"
   },
   "keywords": [
     "node",
