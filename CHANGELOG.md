@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.10](https://github.com/paymoapp/node-active-window/compare/v1.0.9...v1.0.10) (2022-08-16)
+
+
+### Build/CI
+
+* Fix mac build architecture ([9b69c97](https://github.com/paymoapp/node-active-window/commit/9b69c973136d4ead82f0e63d9c1f32dd763f04af))
+
 ### [1.0.9](https://github.com/paymoapp/node-active-window/compare/v1.0.8...v1.0.9) (2022-07-18)
 
 
