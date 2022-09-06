@@ -2,6 +2,7 @@ variables:
   TEST_IMAGE: "node:14-alpine"
   BUILD_IMAGE: "gitlab.paymoapp.com:5555/envscripts/img-ubuntu-base"
   ADDON_BUILD_IMAGE: "gitlab.paymoapp.com:5555/envscripts/img-ubuntu-widget-build"
+  GIT_DEPTH: 50
 
 # Mixins
 .only_any_v_tags:
@@ -30,8 +31,7 @@ variables:
   before_script:
     - npm ci --ignore-scripts
   script:
-    - npm run build:gyp
-    - npm run publish:bindings
+    - npm run prebuild -- --upload $PREBUILD_GH_TOKEN
   needs:
     - lint
     - typecheck
@@ -62,7 +62,7 @@ build-addon-windows:
   tags:
     - win
   before_script:
-    - npm config set msvs_version 2022
+    - npm config set msvs_version 2019
     - npm ci --ignore-scripts
 
 build-addon-mac-x64:
@@ -72,8 +72,7 @@ build-addon-mac-x64:
   tags:
     - osx
   script:
-    - npm run build:gyp -- --arch=x64
-    - npm run publish:bindings -- --target_arch=x64
+    - npm run prebuild -- --upload $PREBUILD_GH_TOKEN --arch x64
 
 build-addon-mac-arm64:
   extends:
@@ -82,8 +81,7 @@ build-addon-mac-arm64:
   tags:
     - osx
   script:
-    - npm run build:gyp -- --arch=arm64
-    - npm run publish:bindings -- --target_arch=arm64
+    - npm run prebuild -- --upload $PREBUILD_GH_TOKEN --arch arm64
 
 build-addon-linux:
   extends:

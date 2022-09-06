@@ -49,7 +49,7 @@ npm install --save @paymoapp/active-window
 
 This project uses NodeJS Native Addons to function, so you can use this library in any NodeJS or Electron project, there won't be any problem with bundling and code signing.
 
-The project uses [node-pre-gyp](https://www.npmjs.com/package/@mapbox/node-pre-gyp) to supply prebuilt libraries.
+The project uses [prebuild](https://github.com/prebuild/prebuild) to supply prebuilt libraries.
 
 The project uses Node-API version 6, you can check [this table](https://nodejs.org/api/n-api.html#node-api-version-matrix) to see which node versions are supported.
 

@@ -1,7 +1,7 @@
 {
 	"targets": [
 		{
-			"target_name": "<(module_name)",
+			"target_name": "PaymoActiveWindow",
 			"conditions": [
 				["OS=='win'", {
 					"sources": [
@@ -75,21 +75,6 @@
 			"defines": [
 				"NAPI_DISABLE_CPP_EXCEPTIONS",
 				"NAPI_VERSION=<(napi_build_version)"
-			]
-		},
-		{
-			"target_name": "copy_artifacts",
-			"type": "none",
-			"dependencies": [
-				"<(module_name)"
-			],
-			"copies": [
-				{
-					"files": [
-						"<(PRODUCT_DIR)/<(module_name).node"
-					],
-					"destination": "<(module_path)"
-				}
 			]
 		}
 	]
