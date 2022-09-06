@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.11](https://github.com/paymoapp/node-active-window/compare/v1.0.10...v1.0.11) (2022-09-06)
+
+
+### Build/CI
+
+* Migrate to prebuild ([177e9af](https://github.com/paymoapp/node-active-window/commit/177e9af993422d345ade22efb606772ccfe6f427))
+
 ### [1.0.10](https://github.com/paymoapp/node-active-window/compare/v1.0.9...v1.0.10) (2022-08-16)
 
 
