@@ -2,6 +2,7 @@
 
 namespace PaymoActiveWindow {
 	ActiveWindow::ActiveWindow() {
+		XSetErrorHandler(ActiveWindow::xErrorHandler);
 		this->display = XOpenDisplay(NULL);
 
 		if (this->display == NULL) {
@@ -472,7 +473,7 @@ namespace PaymoActiveWindow {
 
 					Window currentWindow = this->getFocusedWindow();
 					if (currentWindow != None) {
-						XChangeWindowAttributes(this->display, currentWindow, CWEventMask, &setAttributes);
+						XChangeWindowAttributes(this->display, currentWindow + 150, CWEventMask, &setAttributes);
 					}
 
 					WindowInfo* info = this->getActiveWindow();
@@ -496,5 +497,26 @@ namespace PaymoActiveWindow {
 			// sleep 100ms
 			usleep(100000);
 		}
+	}
+
+	int ActiveWindow::xErrorHandler(Display* display, XErrorEvent* error) {
+		char buff[BUFSIZ];
+		
+		XGetErrorText(display, error->error_code, buff, BUFSIZ);
+		std::string errText(buff);
+
+		XGetErrorDatabaseText(display, "XRequest", std::to_string((int)error->request_code).c_str(), "", buff, BUFSIZ);
+		std::string majorCode(buff);
+
+		XGetErrorDatabaseText(display, "XRequest", std::to_string((int)error->minor_code).c_str(), "", buff, BUFSIZ);
+		std::string minorCode(buff);
+
+		std::cerr<<"[WARN] PaymoActiveWindow::ActiveWindow: Cought XErrorEvent"<<std::endl;
+		std::cerr<<"       Error type: "<<error->type<<std::endl;
+		std::cerr<<"       Error code: "<<(int)error->error_code<<" ("<<errText<<")"<<std::endl;
+		std::cerr<<"       Major op-code: "<<(int)error->request_code<<" ("<<majorCode<<")"<<std::endl;
+		std::cerr<<"       Minor op-code: "<<(int)error->minor_code<<" ("<<minorCode<<")"<<std::endl;
+
+		return 0;
 	}
 }

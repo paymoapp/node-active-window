@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <iostream>
 #include "SimpleIni.h"
 #include "base64.h"
 
@@ -72,6 +73,7 @@ namespace PaymoActiveWindow {
 		bool dirExists(std::string dir);
 		std::string encodePngIcon(std::string iconPath);
 		void runWatchThread();
+		static int xErrorHandler(Display* display, XErrorEvent* error);
 	};
 }
 

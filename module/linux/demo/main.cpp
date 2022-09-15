@@ -5,12 +5,6 @@
 #include <csignal>
 #include <X11/Xlib.h>
 
-int handle_xerror(Display* display, XErrorEvent* error) {
-	std::cout<<"XERROR!\ntype: "<<error->type<<"\nerror_code: "<<error->error_code<<std::endl;
-
-	return 1;
-}
-
 void printWindowInfo(PaymoActiveWindow::WindowInfo* inf) {
 	std::cout<<"Title: \""<<inf->title<<"\""<<std::endl;
 	std::cout<<"Application: \""<<inf->application<<"\""<<std::endl;
@@ -41,7 +35,6 @@ void signalHandler(int signum) {
 }
 
 int main(int argc, char* argv[]) {
-	XSetErrorHandler(handle_xerror);
 	PaymoActiveWindow::ActiveWindow* aw = new PaymoActiveWindow::ActiveWindow();
 
 	std::cout<<"Building app cache..."<<std::endl;
