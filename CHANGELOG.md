@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.14](https://github.com/paymoapp/node-active-window/compare/v1.0.13...v1.0.14) (2022-09-19)
+
+
+### Bug Fixes
+
+* **module.linux:** Removed debug value ([e83e85e](https://github.com/paymoapp/node-active-window/commit/e83e85e3d5630b206fa3b7ee0619cef5c1086674))
+
 ### [1.0.13](https://github.com/paymoapp/node-active-window/compare/v1.0.12...v1.0.13) (2022-09-15)
 
 
