@@ -72,7 +72,7 @@ build-addon-mac-x64:
   tags:
     - osx
   script:
-    - npm run prebuild -- --upload $PREBUILD_GH_TOKEN --arch x64
+    - npm run prebuild -- --arch x64 --upload $PREBUILD_GH_TOKEN
 
 build-addon-mac-arm64:
   extends:
@@ -81,7 +81,7 @@ build-addon-mac-arm64:
   tags:
     - osx
   script:
-    - npm run prebuild -- --upload $PREBUILD_GH_TOKEN --arch arm64
+    - npm run prebuild -- --arch arm64 --upload $PREBUILD_GH_TOKEN
 
 build-addon-linux:
   extends:
