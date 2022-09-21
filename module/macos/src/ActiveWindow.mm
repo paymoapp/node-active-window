@@ -92,6 +92,7 @@ namespace PaymoActiveWindow {
 		}
 
 		CFArrayRef windows = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+		NSString* windowTitle = nil;
 
 		for (NSDictionary* window in (NSArray*)windows) {
 			NSNumber* windowPid = window[(id)kCGWindowOwnerPID];
@@ -102,18 +103,14 @@ namespace PaymoActiveWindow {
 				continue;
 			}
 
-			NSString* windowTitle = window[(id)kCGWindowName];
-
-			if (windowTitle == nil) {
-				return "";
-			}
-
-			std::string title([windowTitle UTF8String]);
-
-			return title;
+			windowTitle = window[(id)kCGWindowName];
+			break;
 		}
 
-		return "";
+		std::string title(windowTitle != nil ? [windowTitle UTF8String] : "");
+		CFRelease(windows);
+
+		return title;
 	}
 
 	void ActiveWindow::registerObservers() {
@@ -127,8 +124,6 @@ namespace PaymoActiveWindow {
 
 	void ActiveWindow::handleNotification() {
 		WindowInfo* info = this->getActiveWindow();
-
-		info->title = this->getWindowTitle(info->pid);
 
 		for (std::map<watch_t, watch_callback>::iterator it = this->watches.begin(); it != this->watches.end(); it++) {
 			try {
