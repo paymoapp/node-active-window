@@ -121,13 +121,18 @@ namespace PaymoActiveWindow {
 	}
 
 	std::wstring ActiveWindow::getWindowTitle(HWND hWindow) {
-		int len = GetWindowTextLength(hWindow) + 1;
-		std::vector<wchar_t> buf(len);
-		if (!GetWindowTextW(hWindow, buf.data(), len)) {
+		int len = GetWindowTextLengthW(hWindow);
+
+		if(!len) {
 			return L"";
 		}
-		std::wstring title(buf.begin(), buf.begin() + len - 1);
 
+		std::vector<wchar_t> buf(len + 1);
+		if (!GetWindowTextW(hWindow, buf.data(), len + 1)) {
+			return L"";
+		}
+		std::wstring title(buf.begin(), buf.begin() + len);
+		
 		return title;
 	}
 
@@ -163,10 +168,12 @@ namespace PaymoActiveWindow {
 		active.lang = 0x0409;
 		active.codePage = 0x04E4;
 
-		unsigned int langDataLen = 0;
+		UINT langDataLen = 0;
 		if (VerQueryValueW(data, L"\\VarFileInfo\\Translation", (void**)&langData, &langDataLen)) {
-			active.lang = langData[0].lang;
-			active.codePage = langData[0].codePage;
+			if (langDataLen) {
+				active.lang = langData[0].lang;
+				active.codePage = langData[0].codePage;
+			}
 		}
 
 		// build path to query file description
@@ -180,8 +187,13 @@ namespace PaymoActiveWindow {
 		localePath<<L"\\FileDescription";
 
 		void* localDesc;
-		unsigned int localDescLen = 0;
+		UINT localDescLen = 0;
 		if (!VerQueryValueW(data, localePath.str().c_str(), &localDesc, &localDescLen)) {
+			delete data;
+			return L"";
+		}
+
+		if (!localDescLen) {
 			delete data;
 			return L"";
 		}
@@ -200,15 +212,28 @@ namespace PaymoActiveWindow {
 		}
 
 		IStream* pngStream = this->getPngFromIcon(hIcon);
+		if (pngStream == NULL) {
+			return "";
+		}
+
 		std::string iconBase64 = this->encodeImageStream(pngStream);
 
 		pngStream->Release();
+
+		if (iconBase64 == "") {
+			return "";
+		}
 
 		return "data:image/png;base64," + iconBase64;
 	}
 
 	std::string ActiveWindow::getUWPIcon(HANDLE hProc) {
 		std::wstring pkgPath = this->getUWPPackagePath(hProc);
+
+		if (pkgPath == L"") {
+			return "";
+		}
+
 		IAppxManifestProperties* properties = this->getUWPPackageProperties(pkgPath);
 
 		if (properties == NULL) {
@@ -235,6 +260,10 @@ namespace PaymoActiveWindow {
 
 		pngStream->Release();
 
+		if (iconBase64 == "") {
+			return "";
+		}
+
 		return "data:image/png;base64," + iconBase64;
 	}
 
@@ -242,8 +271,14 @@ namespace PaymoActiveWindow {
 		UINT32 len = 0;
 		GetPackageFamilyName(hProc, &len, NULL);
 
+		if (!len) {
+			return L"";
+		}
+
 		std::vector<wchar_t> buf(len);
-		GetPackageFamilyName(hProc, &len, buf.data());
+		if (GetPackageFamilyName(hProc, &len, buf.data()) != ERROR_SUCCESS) {
+			return L"";
+		}
 
 		std::wstring package(buf.begin(), buf.begin() + len - 1);
 
@@ -267,7 +302,7 @@ namespace PaymoActiveWindow {
 	HICON ActiveWindow::getHighResolutionIcon(std::wstring path) {
 		// get file info
 		SHFILEINFOW fileInfo;
-		if (!SHGetFileInfoW(path.c_str(), 0, &fileInfo, sizeof(fileInfo), SHGFI_SYSICONINDEX)) {
+		if ((HANDLE)SHGetFileInfoW(path.c_str(), 0, &fileInfo, sizeof(fileInfo), SHGFI_SYSICONINDEX) == INVALID_HANDLE_VALUE) {
 			return NULL;
 		}
 
@@ -279,7 +314,10 @@ namespace PaymoActiveWindow {
 
 		// get first icon
 		HICON hIcon;
-		imgList->GetIcon(fileInfo.iIcon, ILD_TRANSPARENT, &hIcon);
+		if (FAILED(imgList->GetIcon(fileInfo.iIcon, ILD_TRANSPARENT, &hIcon))) {
+			imgList->Release();
+			return NULL;
+		}
 
 		imgList->Release();
 
@@ -289,16 +327,25 @@ namespace PaymoActiveWindow {
 	IStream* ActiveWindow::getPngFromIcon(HICON hIcon) {
 		// convert icon to bitmap
 		ICONINFO iconInf;
-		GetIconInfo(hIcon, &iconInf);
+		if (!GetIconInfo(hIcon, &iconInf)) {
+			return NULL;
+		}
 
 		BITMAP bmp;
-		GetObject(iconInf.hbmColor, sizeof(bmp), &bmp);
+		if (!GetObject(iconInf.hbmColor, sizeof(bmp), &bmp)) {
+			return NULL;
+		}
 
 		Gdiplus::Bitmap* tmp = new Gdiplus::Bitmap(iconInf.hbmColor, NULL);
 		Gdiplus::BitmapData* lockedBitmapData = new Gdiplus::BitmapData();
 		Gdiplus::Rect* rect = new Gdiplus::Rect(0, 0, tmp->GetWidth(), tmp->GetHeight());
 
-		tmp->LockBits(rect, Gdiplus::ImageLockModeRead, tmp->GetPixelFormat(), lockedBitmapData);
+		if (tmp->LockBits(rect, Gdiplus::ImageLockModeRead, tmp->GetPixelFormat(), lockedBitmapData) != Gdiplus::Ok) {
+			delete tmp;
+			delete lockedBitmapData;
+			delete rect;
+			return NULL;
+		}
 
 		// get bitmap with transparency
 		Gdiplus::Bitmap* image = new Gdiplus::Bitmap(lockedBitmapData->Width, lockedBitmapData->Height, lockedBitmapData->Stride, PixelFormat32bppARGB, reinterpret_cast<BYTE*>(lockedBitmapData->Scan0));
@@ -310,7 +357,10 @@ namespace PaymoActiveWindow {
 
 		// convert image to png
 		CLSID encoderClsId;
-		GdiPlusUtils::GetEncoderClsId(L"image/png", &encoderClsId);
+		if (GdiPlusUtils::GetEncoderClsId(L"image/png", &encoderClsId) < 0) {
+			delete image;
+			return NULL;
+		}
 
 		IStream* pngStream = SHCreateMemStream(NULL, 0);
 		Gdiplus::Status stat = image->Save(pngStream, &encoderClsId, NULL);
@@ -335,19 +385,21 @@ namespace PaymoActiveWindow {
 	std::wstring ActiveWindow::getUWPPackagePath(HANDLE hProc) {
 		UINT32 pkgIdLen = 0;
 		GetPackageId(hProc, &pkgIdLen, NULL);
-		PACKAGE_ID* pkgId = (PACKAGE_ID*)malloc(pkgIdLen);
-		GetPackageId(hProc, &pkgIdLen, (BYTE*)pkgId);
+		BYTE* pkgId = new BYTE[pkgIdLen];
+		GetPackageId(hProc, &pkgIdLen, pkgId);
 
 		UINT32 len = 0;
-		GetPackagePath(pkgId, 0, &len, NULL);
+		GetPackagePath((PACKAGE_ID*)pkgId, 0, &len, NULL);
 
 		std::vector<wchar_t> buf(len);
-		GetPackagePath(pkgId, 0, &len, buf.data());
+		if (GetPackagePath((PACKAGE_ID*)pkgId, 0, &len, buf.data()) != ERROR_SUCCESS) {
+			delete pkgId;
+			return L"";
+		}
 
 		std::wstring pkgPath(buf.begin(), buf.begin() + len - 1);
 
-		free(pkgId);
-
+		delete pkgId;
 		return pkgPath;
 	}
 
@@ -392,8 +444,12 @@ namespace PaymoActiveWindow {
 
 		// convert stream to string
 		std::vector<char> buf(streamStat.cbSize.QuadPart);
-		long unsigned int read;
-		pngStream->Read((void*)&buf[0], streamStat.cbSize.QuadPart, &read);
+		ULONG read = 0;
+		pngStream->Read((void*)buf.data(), streamStat.cbSize.QuadPart, &read);
+
+		if (read == 0) {
+			return "";
+		}
 		
 		std::string str(buf.begin(), buf.end());
 		return base64_encode(str);
