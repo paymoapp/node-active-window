@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.16](https://github.com/paymoapp/node-active-window/compare/v1.0.15...v1.0.16) (2022-10-05)
+
+
+### Bug Fixes
+
+* **module.windows:** Fixed possible null pointer references ([cd07d45](https://github.com/paymoapp/node-active-window/commit/cd07d45654b316eb853e8e7020694d4e09f7429f))
+
 ### [1.0.15](https://github.com/paymoapp/node-active-window/compare/v1.0.14...v1.0.15) (2022-09-21)
 
 
