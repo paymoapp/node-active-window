@@ -7,25 +7,29 @@ BUILDDIR=build
 CXXFLAGS=-ObjC++ -std=c++17
 LDOPTS=-lc++ -framework Foundation -framework AppKit -framework ApplicationServices
 
-all: demo
+SRCS=$(LIBDIR)/ActiveWindow.mm $(LIBDIR)/base64/base64.cpp
+OBJS=$(addsuffix .o,$(addprefix $(BUILDDIR)/,$(notdir $(basename $(SRCS)))))
 
-demo: demo.obj lib $(BUILDDIR)/
-	@echo Building demo executable
-	$(CXX) -o $(BUILDDIR)/$@ $(BUILDDIR)/ActiveWindow.o $(BUILDDIR)/base64.o $(BUILDDIR)/demo.o $(LDOPTS)
+define build-cpp
+$(BUILDDIR)/$(basename $(notdir $(1))).o: $(1) $(addsuffix .h,$(basename $(1))) $(BUILDDIR)/
+	@echo Bulding $(1)
+	$(CXX) $(CXXFLAGS) -c -o $(BUILDDIR)/$(basename $(notdir $(1))).o $(1)
+endef
 
-demo.obj: main.mm $(LIBDIR)/ActiveWindow.h $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c -o $(BUILDDIR)/demo.o main.mm
+all: $(BUILDDIR)/demo
 
-lib: $(BUILDDIR)/ActiveWindow.o $(BUILDDIR)/base64.o
+$(BUILDDIR)/demo: $(BUILDDIR)/demo.o lib
+	@echo Linking demo executable
+	$(CXX) -o $@ $(OBJS) $(BUILDDIR)/demo.o $(LDOPTS)
+
+lib: $(OBJS)
 	@echo Built library
 
-$(BUILDDIR)/ActiveWindow.o: $(LIBDIR)/ActiveWindow.mm $(LIBDIR)/ActiveWindow.h $(BUILDDIR)/
-	@echo Building $<
+$(BUILDDIR)/demo.o: main.mm $(LIBDIR)/ActiveWindow.h $(BUILDDIR)
+	@echo Building main.mm for demo
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(BUILDDIR)/base64.o: $(LIBDIR)/base64.cpp $(LIBDIR)/base64.h $(BUILDDIR)/
-	@echo Building $<
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+$(foreach _t,$(SRCS),$(eval $(call build-cpp,$(_t))))
 
 $(BUILDDIR)/:
 	@echo Creating build directory

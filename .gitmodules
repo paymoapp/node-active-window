@@ -10,3 +10,7 @@
 	path = module/windows/src/base64
 	url = https://github.com/ReneNyffenegger/cpp-base64.git
 	branch = master
+[submodule "module/macos/lib/base64"]
+	path = module/macos/src/base64
+	url = https://github.com/ReneNyffenegger/cpp-base64.git
+	branch = master

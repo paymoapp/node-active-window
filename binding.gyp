@@ -51,7 +51,7 @@
 						"module/macos/napi/main.mm",
 						"module/macos/napi/module.mm",
 						"module/macos/src/ActiveWindow.mm",
-						"module/macos/src/base64.cpp"
+						"module/macos/src/base64/base64.cpp"
 					],
 					"libraries": [
 						"-lc++",
