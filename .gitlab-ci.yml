@@ -2,6 +2,7 @@ variables:
   TEST_IMAGE: "node:14-alpine"
   BUILD_IMAGE: "gitlab.paymoapp.com:5555/envscripts/img-ubuntu-base"
   ADDON_BUILD_IMAGE: "gitlab.paymoapp.com:5555/envscripts/img-ubuntu-widget-build"
+  GIT_SUBMODULE_STRATEGY: recursive
   GIT_DEPTH: 50
 
 # Mixins
