@@ -48,6 +48,10 @@ namespace PaymoActiveWindow {
 			info->icon = this->getApplicationIcon(info->application);
 		}
 
+		if (info->icon == "") {
+			info->icon = this->getWindowIcon(activeWin);
+		}
+
 		return info;
 	}
 
@@ -232,6 +236,91 @@ namespace PaymoActiveWindow {
 		}
 
 		return "";
+	}
+
+	std::string ActiveWindow::getWindowIcon(Window win) {
+		Atom property = XInternAtom(this->display, "_NET_WM_ICON", true);
+
+		Atom _actualType;
+		int _actualFormat;
+		unsigned long _itemsCount;
+		unsigned long bytes;
+		unsigned char* prop;
+
+		int maxSize = 0;
+		int maxSizeOffset = 0;
+		int offset = 0;
+
+		do {
+			if (XGetWindowProperty(this->display, win, property, offset, 1, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+				return "";
+			}
+			if (bytes == 0) {
+				return "";
+			}
+			int width = *reinterpret_cast<int*>(prop);
+			XFree(prop);
+
+			if (XGetWindowProperty(this->display, win, property, offset + 1, 1, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+				return "";
+			}
+			int height = *reinterpret_cast<int*>(prop);
+			XFree(prop);
+
+			int size = width * height;
+
+			if (size > maxSize) {
+				maxSize = size;
+				maxSizeOffset = offset;
+			}
+
+			if (width >= targetIconSize) {
+				break;
+			}
+
+			offset += size + 2;
+		} while(maxSize * 4 < bytes);
+
+		if (XGetWindowProperty(this->display, win, property, maxSizeOffset, 1, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+			return "";
+		}
+		int width = *reinterpret_cast<int*>(prop);
+		XFree(prop);
+
+		if (XGetWindowProperty(this->display, win, property, maxSizeOffset + 1, 1, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+			return "";
+		}
+		int height = *reinterpret_cast<int*>(prop);
+		XFree(prop);
+
+		int size = width * height;
+
+		if (XGetWindowProperty(this->display, win, property, maxSizeOffset + 2, size, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+			return "";
+		}
+
+		unsigned long* pixmap = reinterpret_cast<unsigned long*>(prop);
+		std::vector<unsigned char> imgData;
+		imgData.reserve(size * 4);
+
+		for (int i = 0; i < size; i++) {
+			unsigned long pixel = *pixmap++;
+			imgData.push_back((pixel & 0x00ff0000) >> 16); // r
+			imgData.push_back((pixel & 0x0000ff00) >> 8); // g
+			imgData.push_back((pixel & 0x000000ff)); // b
+			imgData.push_back((pixel & 0xff000000) >> 24); // a
+		}
+
+		XFree(prop);
+
+		std::vector<unsigned char> png;
+		if (lodepng::encode(png, imgData, width, height, LCT_RGBA, 8)) {
+			return "";
+		}
+
+		std::string pngStr(png.begin(), png.end());
+
+		return "data:image/png;base64," + base64_encode(pngStr);
 	}
 
 	void ActiveWindow::loadDesktopEntriesFromDirectory(std::string dir) {

@@ -20,6 +20,7 @@
 #include <iostream>
 #include "SimpleIni/SimpleIni.h"
 #include "base64/base64.h"
+#include "lodepng/lodepng.h"
 
 #ifndef _PAYMO_ACTIVEWINDOW_H
 #define _PAYMO_ACTIVEWINDOW_H
@@ -35,6 +36,7 @@ namespace PaymoActiveWindow {
 
 	typedef unsigned int watch_t;
 	typedef std::function<void(WindowInfo*)> watch_callback;
+	const int targetIconSize = 128;
 
 	class ActiveWindow {
 	public:
@@ -64,6 +66,7 @@ namespace PaymoActiveWindow {
 		pid_t getWindowPid(Window win);
 		std::string getProcessPath(pid_t pid);
 		std::string getApplicationIcon(std::string app);
+		std::string getWindowIcon(Window win);
 		void loadDesktopEntriesFromDirectory(std::string dir);
 		std::string processStringForIndex(std::string str);
 		std::string resolveIconPath(std::string icon);

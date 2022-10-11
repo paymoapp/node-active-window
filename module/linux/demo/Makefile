@@ -7,7 +7,7 @@ BUILDDIR=build
 CXXFLAGS=--std=c++17
 LDOPTS=-lX11 -licuuc -lpthread
 
-SRCS=$(LIBDIR)/ActiveWindow.cpp $(LIBDIR)/SimpleIni/ConvertUTF.c $(LIBDIR)/base64/base64.cpp
+SRCS=$(LIBDIR)/ActiveWindow.cpp $(LIBDIR)/SimpleIni/ConvertUTF.c $(LIBDIR)/base64/base64.cpp $(LIBDIR)/lodepng/lodepng.cpp
 OBJS=$(addsuffix .o,$(addprefix $(BUILDDIR)/,$(notdir $(basename $(SRCS)))))
 
 define build-cpp

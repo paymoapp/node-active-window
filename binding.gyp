@@ -34,7 +34,8 @@
 						"module/linux/napi/module.cpp",
 						"module/linux/src/ActiveWindow.cpp",
 						"module/linux/src/base64/base64.cpp",
-						"module/linux/src/SimpleIni/ConvertUTF.c"
+						"module/linux/src/SimpleIni/ConvertUTF.c",
+						"module/linux/src/lodepng/lodepng.cpp"
 					],
 					"libraries": [
 						"-lX11",

@@ -14,3 +14,7 @@
 	path = module/macos/src/base64
 	url = https://github.com/ReneNyffenegger/cpp-base64.git
 	branch = master
+[submodule "module/linux/lib/lodepng"]
+	path = module/linux/src/lodepng
+	url = https://github.com/lvandeve/lodepng.git
+	branch = master
