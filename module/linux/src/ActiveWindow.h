@@ -18,8 +18,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <iostream>
-#include "SimpleIni.h"
-#include "base64.h"
+#include "SimpleIni/SimpleIni.h"
+#include "base64/base64.h"
 
 #ifndef _PAYMO_ACTIVEWINDOW_H
 #define _PAYMO_ACTIVEWINDOW_H

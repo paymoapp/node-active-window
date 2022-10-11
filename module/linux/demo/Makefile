@@ -1,30 +1,35 @@
 CXX=g++
-RM=rmdir -R
+RM=rm -R
 
 LIBDIR=../src
 BUILDDIR=build
 
-SRCS=$(LIBDIR)/ActiveWindow.cpp $(LIBDIR)/base64.cpp $(LIBDIR)/ConvertUTF.c
-OBJS=$(patsubst $(LIBDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
+CXXFLAGS=--std=c++17
 LDOPTS=-lX11 -licuuc -lpthread
-CXXOPTS=--std=c++17
+
+SRCS=$(LIBDIR)/ActiveWindow.cpp $(LIBDIR)/SimpleIni/ConvertUTF.c $(LIBDIR)/base64/base64.cpp
+OBJS=$(addsuffix .o,$(addprefix $(BUILDDIR)/,$(notdir $(basename $(SRCS)))))
+
+define build-cpp
+$(BUILDDIR)/$(basename $(notdir $(1))).o: $(1) $(addsuffix .h,$(basename $(1))) $(BUILDDIR)/
+	@echo Bulding $(1)
+	$(CXX) $(CXXFLAGS) -c -o $(BUILDDIR)/$(basename $(notdir $(1))).o $(1)
+endef
 
 all: demo
 
-demo: demo.obj lib $(BUILDDIR)/
+demo: $(BUILDDIR)/demo.o lib
 	@echo Building demo executable
 	$(CXX) -o $(BUILDDIR)/$@ $(OBJS) $(BUILDDIR)/demo.o $(LDOPTS)
-
-demo.obj: main.cpp $(LIBDIR)/ActiveWindow.h $(BUILDDIR)/
-	@echo Building demo
-	$(CXX) $(CXXOPTS) -c -o $(BUILDDIR)/demo.o main.cpp
 
 lib: $(OBJS)
 	@echo Built library
 
-$(BUILDDIR)/%.o: $(LIBDIR)/%.cpp $(LIBDIR)/%.h $(BUILDDIR)/
-	@echo Building $<
+$(BUILDDIR)/demo.o: main.cpp $(LIBDIR)/ActiveWindow.h $(BUILDDIR)/
+	@echo Building demo
 	$(CXX) $(CXXOPTS) -c -o $@ $<
+
+$(foreach _t,$(SRCS),$(eval $(call build-cpp,$(_t))))
 
 $(BUILDDIR)/:
 	@echo Creating build directory

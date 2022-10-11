@@ -1,0 +1,8 @@
+[submodule "module/linux/lib/base64"]
+	path = module/linux/src/base64
+	url = https://github.com/ReneNyffenegger/cpp-base64.git
+	branch = master
+[submodule "module/linux/lib/SimpleIni"]
+	path = module/linux/src/SimpleIni
+	url = https://github.com/brofield/simpleini.git
+	branch = master
