@@ -14,7 +14,7 @@
 #include <mutex>
 #include <functional>
 #include "GdiPlusUtils.h"
-#include "base64.h"
+#include "base64/base64.h"
 
 #ifndef _PAYMO_ACTIVEWINDOW_H
 #define _PAYMO_ACTIVEWINDOW_H

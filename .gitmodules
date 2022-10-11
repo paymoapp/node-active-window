@@ -6,3 +6,7 @@
 	path = module/linux/src/SimpleIni
 	url = https://github.com/brofield/simpleini.git
 	branch = master
+[submodule "module/windows/lib/base64"]
+	path = module/windows/src/base64
+	url = https://github.com/ReneNyffenegger/cpp-base64.git
+	branch = master

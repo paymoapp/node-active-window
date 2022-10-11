@@ -16,18 +16,18 @@ $(BUILDDIR)/$(basename $(notdir $(1))).o: $(1) $(addsuffix .h,$(basename $(1))) 
 	$(CXX) $(CXXFLAGS) -c -o $(BUILDDIR)/$(basename $(notdir $(1))).o $(1)
 endef
 
-all: demo
+all: $(BUILDDIR)/demo
 
-demo: $(BUILDDIR)/demo.o lib
-	@echo Building demo executable
-	$(CXX) -o $(BUILDDIR)/$@ $(OBJS) $(BUILDDIR)/demo.o $(LDOPTS)
+$(BUILDDIR)/demo: $(BUILDDIR)/demo.o lib
+	@echo Linking demo executable
+	$(CXX) -o $@ $(OBJS) $(BUILDDIR)/demo.o $(LDOPTS)
 
 lib: $(OBJS)
 	@echo Built library
 
 $(BUILDDIR)/demo.o: main.cpp $(LIBDIR)/ActiveWindow.h $(BUILDDIR)/
-	@echo Building demo
-	$(CXX) $(CXXOPTS) -c -o $@ $<
+	@echo Building main.cpp for demo
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(foreach _t,$(SRCS),$(eval $(call build-cpp,$(_t))))
 
