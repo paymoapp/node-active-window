@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/paymoapp/node-active-window/compare/v1.0.16...v1.1.0) (2022-10-11)
+
+
+### Features
+
+* **module.linux:** Fallback to _NET_WM_ICON if can not find desktop icon ([fa12dd9](https://github.com/paymoapp/node-active-window/commit/fa12dd92657a0a91ba1723a4e5dec959c5fff570))
+
+
+### Bug Fixes
+
+* **module.windows:** Fixed crash when SHCreateMemStream couldn't allocate a stream for getting the icon ([0248451](https://github.com/paymoapp/node-active-window/commit/02484517a830056ff0484bf8c452016e7c7f832c))
+
+
+### Refactor
+
+* **module.linux:** Using git submodules for library dependencies ([c52b587](https://github.com/paymoapp/node-active-window/commit/c52b5875a2e75dfaa37f3adde9c1a48ba8e7515f))
+* **module.macos:** Using git submodules for library dependencies ([e397ca9](https://github.com/paymoapp/node-active-window/commit/e397ca9e5a6b529df6182d86086e79d1ffbef2f3))
+* **module.windows:** Using git submodules for library dependencies ([981b119](https://github.com/paymoapp/node-active-window/commit/981b1196da02c1d4f4ce0e097bcf1b82830cf052))
+
+
+### Build/CI
+
+* **gitlab:** Clone submodules when building ([033c177](https://github.com/paymoapp/node-active-window/commit/033c17702f81be8262918f0a596a8b3ab75f922b))
+
 ### [1.0.16](https://github.com/paymoapp/node-active-window/compare/v1.0.15...v1.0.16) (2022-10-05)
 
 
