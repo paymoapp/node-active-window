@@ -363,6 +363,10 @@ namespace PaymoActiveWindow {
 		}
 
 		IStream* pngStream = SHCreateMemStream(NULL, 0);
+		if (pngStream == NULL) {
+			return NULL;
+		}
+
 		Gdiplus::Status stat = image->Save(pngStream, &encoderClsId, NULL);
 
 		// prepare stream for reading
@@ -467,7 +471,11 @@ namespace PaymoActiveWindow {
 		UINT_PTR timer = SetTimer(NULL, NULL, 500, nullptr); // run message loop at least every 500 ms
 
 		for (;;) {
-			GetMessage(&msg, NULL, 0, 0);
+			BOOL getMsgRet = GetMessage(&msg, NULL, 0, 0);
+
+			if (getMsgRet == -1) {
+				continue;
+			}
 
 			if (msg.message = WM_TIMER) {
 				// check if we should exit
