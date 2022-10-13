@@ -29,7 +29,11 @@ export interface Module<T> {
 	runLoop?(): void;
 }
 
+export interface InitializeOptions {
+	osxRunLoop?: boolean;
+}
+
 export interface IActiveWindow extends Omit<Module<WindowInfo>, 'runLoop'> {
-	initialize(): void;
+	initialize(opts?: InitializeOptions): void;
 	requestPermissions(): boolean;
 }

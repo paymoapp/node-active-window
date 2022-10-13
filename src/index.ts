@@ -2,7 +2,8 @@ import type {
 	Module,
 	NativeWindowInfo,
 	WindowInfo,
-	IActiveWindow
+	IActiveWindow,
+	InitializeOptions
 } from './types';
 
 const SUPPORTED_PLATFORMS = ['win32', 'linux', 'darwin'];
@@ -71,7 +72,7 @@ const ActiveWindow: IActiveWindow = {
 
 		addon.unsubscribe(watchId);
 	},
-	initialize: (): void => {
+	initialize: ({ osxRunLoop }: InitializeOptions = {}): void => {
 		if (!addon) {
 			throw new Error('Failed to load native addon');
 		}
@@ -81,7 +82,7 @@ const ActiveWindow: IActiveWindow = {
 		}
 
 		// set up runloop on MacOS
-		if (process.platform == 'darwin') {
+		if (process.platform == 'darwin' && osxRunLoop) {
 			const interval = setInterval(() => {
 				if (addon && addon.runLoop) {
 					addon.runLoop();

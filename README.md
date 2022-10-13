@@ -154,12 +154,14 @@ Remove the event listener associated with the supplied watch ID. Use this to uns
 
 ```ts
 interface IActiveWindow {
-	initialize(): void;
+	initialize(opts?: { osxRunLoop: boolean }): void;
 	// ...
 }
 ```
 
-On some platforms (Linux and MacOS) the library needs some initialization to be done. You should call this function before doing anything with the library regardless of the current platform.
+On some platforms (Linux) the library needs some initialization to be done. You must call this function before doing anything with the library regardless of the current platform.
+
+If you're not using this library in a GUI application there might be no runloop running for the main thread. In this case you should set the `osxRunLoop` property to true if you want to use subscriptions.
 
 ###### 𝑓 &nbsp;&nbsp; requestPermissions
 
