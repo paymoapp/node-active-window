@@ -42,6 +42,7 @@ namespace PaymoActiveWindow {
 		void unwatchActiveWindow(watch_t watch);
 	private:
 		ULONG_PTR gdiPlusToken;
+		CLSID gdiPlusEncoder;
 
 		watch_t nextWatchId = 1;
 

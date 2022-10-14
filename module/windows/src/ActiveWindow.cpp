@@ -8,6 +8,9 @@ namespace PaymoActiveWindow {
 		// initialize GDI+
 		Gdiplus::GdiplusStartupInput gdiPlusStartupInput;
 		Gdiplus::GdiplusStartup(&this->gdiPlusToken, &gdiPlusStartupInput, NULL);
+		if (GdiPlusUtils::GetEncoderClsId(L"image/png", &this->gdiPlusEncoder) < 0) {
+			throw std::logic_error("Failed to get GDI+ encoder");
+		}
 
 		// initialize COM
 		CoInitializeEx(NULL, COINIT_MULTITHREADED);
@@ -336,46 +339,31 @@ namespace PaymoActiveWindow {
 			return NULL;
 		}
 
-		Gdiplus::Bitmap* tmp = new Gdiplus::Bitmap(iconInf.hbmColor, NULL);
-		Gdiplus::BitmapData* lockedBitmapData = new Gdiplus::BitmapData();
-		Gdiplus::Rect* rect = new Gdiplus::Rect(0, 0, tmp->GetWidth(), tmp->GetHeight());
+		Gdiplus::Bitmap tmp(iconInf.hbmColor, NULL);
+		Gdiplus::BitmapData lockedBitmapData;
+		Gdiplus::Rect rect(0, 0, tmp.GetWidth(), tmp.GetHeight());
 
-		if (tmp->LockBits(rect, Gdiplus::ImageLockModeRead, tmp->GetPixelFormat(), lockedBitmapData) != Gdiplus::Ok) {
-			delete tmp;
-			delete lockedBitmapData;
-			delete rect;
+		if (tmp.LockBits(&rect, Gdiplus::ImageLockModeRead, tmp.GetPixelFormat(), &lockedBitmapData) != Gdiplus::Ok) {
 			return NULL;
 		}
 
 		// get bitmap with transparency
-		Gdiplus::Bitmap* image = new Gdiplus::Bitmap(lockedBitmapData->Width, lockedBitmapData->Height, lockedBitmapData->Stride, PixelFormat32bppARGB, reinterpret_cast<BYTE*>(lockedBitmapData->Scan0));
-
-		// clean up
-		delete tmp;
-		delete lockedBitmapData;
-		delete rect;
+		Gdiplus::Bitmap image(lockedBitmapData.Width, lockedBitmapData.Height, lockedBitmapData.Stride, PixelFormat32bppARGB, reinterpret_cast<BYTE*>(lockedBitmapData.Scan0));
+		tmp.UnlockBits(&lockedBitmapData);
 
 		// convert image to png
-		CLSID encoderClsId;
-		if (GdiPlusUtils::GetEncoderClsId(L"image/png", &encoderClsId) < 0) {
-			delete image;
-			return NULL;
-		}
-
 		IStream* pngStream = SHCreateMemStream(NULL, 0);
 		if (pngStream == NULL) {
 			return NULL;
 		}
 
-		Gdiplus::Status stat = image->Save(pngStream, &encoderClsId, NULL);
+		Gdiplus::Status stat = image.Save(pngStream, &this->gdiPlusEncoder, NULL);
 
 		// prepare stream for reading
 		pngStream->Commit(STGC_DEFAULT);
 		LARGE_INTEGER seekPos;
 		seekPos.QuadPart = 0;
 		pngStream->Seek(seekPos, STREAM_SEEK_SET, NULL);
-
-		delete image;
 
 		if (stat == Gdiplus::Ok) {
 			return pngStream;
