@@ -4,8 +4,7 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
-#include <map>
-#include <set>
+#include <unordered_map>
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
@@ -18,6 +17,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <iostream>
+#include "IconCache.h"
 #include "SimpleIni/SimpleIni.h"
 #include "base64/base64.h"
 #include "lodepng/lodepng.h"
@@ -40,7 +40,7 @@ namespace PaymoActiveWindow {
 
 	class ActiveWindow {
 	public:
-		ActiveWindow();
+		ActiveWindow(unsigned int iconCacheSize = 0);
 		~ActiveWindow();
 		WindowInfo* getActiveWindow();
 		void buildAppCache();
@@ -48,9 +48,8 @@ namespace PaymoActiveWindow {
 		void unwatchActiveWindow(watch_t watch);
 	private:
 		Display* display = NULL;
-		std::map<std::string, std::string> appToIcon;
-		std::set<std::string> apps;
-
+		std::unordered_map<std::string, std::string> appToIcon;
+		IconCache* iconCache = NULL;
 		const std::vector<std::string> iconScalesPreference = { "256x256", "48x48", "22x22" };
 
 		watch_t nextWatchId = 1;
@@ -58,13 +57,14 @@ namespace PaymoActiveWindow {
 		std::thread* watchThread = NULL;
 		std::mutex mutex;
 		std::atomic<bool> threadShouldExit;
-		std::map<watch_t, watch_callback> watches;
+		std::unordered_map<watch_t, watch_callback> watches;
 
 		Window getFocusedWindow();
 		std::string getWindowTitle(Window win);
 		std::string getApplicationName(Window win);
 		pid_t getWindowPid(Window win);
 		std::string getProcessPath(pid_t pid);
+		std::string getIcon(std::string app, Window win);
 		std::string getApplicationIcon(std::string app);
 		std::string getWindowIcon(Window win);
 		void loadDesktopEntriesFromDirectory(std::string dir);

@@ -1,12 +1,16 @@
 #include "ActiveWindow.h"
 
 namespace PaymoActiveWindow {
-	ActiveWindow::ActiveWindow() {
+	ActiveWindow::ActiveWindow(unsigned int iconCacheSize) {
 		XSetErrorHandler(ActiveWindow::xErrorHandler);
 		this->display = XOpenDisplay(NULL);
 
 		if (this->display == NULL) {
 			throw std::logic_error("Failed to open display");
+		}
+
+		if (iconCacheSize > 0) {
+			this->iconCache = new IconCache(iconCacheSize);
 		}
 	}
 
@@ -19,6 +23,7 @@ namespace PaymoActiveWindow {
 			this->watchThread = NULL;
 		}
 
+		delete this->iconCache;
 		XCloseDisplay(this->display);
 		this->display = NULL;
 	}
@@ -44,13 +49,7 @@ namespace PaymoActiveWindow {
 			info->path = this->getProcessPath(info->pid);
 		}
 
-		if (info->application != "") {
-			info->icon = this->getApplicationIcon(info->application);
-		}
-
-		if (info->icon == "") {
-			info->icon = this->getWindowIcon(activeWin);
-		}
+		info->icon = this->getIcon(info->application, activeWin);
 
 		return info;
 	}
@@ -219,19 +218,37 @@ namespace PaymoActiveWindow {
 		return path;
 	}
 
+	std::string ActiveWindow::getIcon(std::string app, Window win) {
+		if (this->iconCache != NULL && this->iconCache->has(&app)) {
+			return this->iconCache->get(&app);
+		}
+
+		std::string icon = this->getApplicationIcon(app);
+
+		if (icon == "") {
+			icon = this->getWindowIcon(win);
+		}
+
+		if (this->iconCache != NULL) {
+			this->iconCache->set(&app, &icon);
+		}
+
+		return icon;
+	}
+
 	std::string ActiveWindow::getApplicationIcon(std::string app) {
 		// check if there's a direct match (using WM_CLASS)
-		if (this->apps.find(app) != this->apps.end()) {
+		if (this->appToIcon.find(app) != this->appToIcon.end()) {
 			// we have an icon
 			return this->encodePngIcon(this->appToIcon[app]);
 		}
 
 		// find using string match
 		std::string needle = this->processStringForIndex(app);
-		for (std::set<std::string>::iterator it = this->apps.begin(); it != this->apps.end(); it++) {
-			if (it->find(needle) != std::string::npos) {
+		for (std::unordered_map<std::string, std::string>::iterator it = this->appToIcon.begin(); it != this->appToIcon.end(); it++) {
+			if (it->first.find(needle) != std::string::npos) {
 				// we have a likely match
-				return this->encodePngIcon(this->appToIcon[*it]);
+				return this->encodePngIcon(it->second);
 			}
 		}
 
@@ -363,13 +380,12 @@ namespace PaymoActiveWindow {
 			// WM class should take precedence
 			std::string indexBy = wmClass != "" ? wmClass : this->processStringForIndex(appName);
 
-			if (this->apps.find(indexBy) != this->apps.end()) {
+			if (this->appToIcon.find(indexBy) != this->appToIcon.end()) {
 				// already indexed
 				continue;
 			}
 
 			this->appToIcon[indexBy] = iconPath;
-			this->apps.insert(indexBy);
 		}
 
 		closedir(d);
@@ -569,7 +585,7 @@ namespace PaymoActiveWindow {
 
 					// notify every callback
 					this->mutex.lock();
-					for (std::map<watch_t, watch_callback>::iterator it = this->watches.begin(); it != this->watches.end(); it++) {
+					for (std::unordered_map<watch_t, watch_callback>::iterator it = this->watches.begin(); it != this->watches.end(); it++) {
 						try {
 							it->second(info);
 						}
