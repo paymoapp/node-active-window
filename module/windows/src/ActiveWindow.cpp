@@ -2,9 +2,9 @@
 
 namespace PaymoActiveWindow {
 	std::mutex ActiveWindow::smutex;
-	std::map<HWINEVENTHOOK, ActiveWindow*> ActiveWindow::winEventProcCbCtx;
+	std::unordered_map<HWINEVENTHOOK, ActiveWindow*> ActiveWindow::winEventProcCbCtx;
 
-	ActiveWindow::ActiveWindow() {
+	ActiveWindow::ActiveWindow(unsigned int iconCacheSize) {
 		// initialize GDI+
 		Gdiplus::GdiplusStartupInput gdiPlusStartupInput;
 		Gdiplus::GdiplusStartup(&this->gdiPlusToken, &gdiPlusStartupInput, NULL);
@@ -14,6 +14,10 @@ namespace PaymoActiveWindow {
 
 		// initialize COM
 		CoInitializeEx(NULL, COINIT_MULTITHREADED);
+
+		if (iconCacheSize > 0) {
+			this->iconCache = new IconCache(iconCacheSize);
+		}
 	}
 
 	ActiveWindow::~ActiveWindow() {
@@ -24,6 +28,9 @@ namespace PaymoActiveWindow {
 			delete this->watchThread;
 			this->watchThread = NULL;
 		}
+
+		delete this->iconCache;
+		this->iconCache = NULL;
 
 		// tear down GDI+
 		Gdiplus::GdiplusShutdown(this->gdiPlusToken);
@@ -208,6 +215,10 @@ namespace PaymoActiveWindow {
 	}
 
 	std::string ActiveWindow::getWindowIcon(std::wstring path) {
+		if (this->iconCache != NULL && this->iconCache->has(&path)) {
+			return this->iconCache->get(&path);
+		}
+
 		HICON hIcon = this->getHighResolutionIcon(path);
 		
 		if (hIcon == NULL) {
@@ -227,7 +238,13 @@ namespace PaymoActiveWindow {
 			return "";
 		}
 
-		return "data:image/png;base64," + iconBase64;
+		std::string icon = "data:image/png;base64," + iconBase64;
+
+		if (this->iconCache != NULL) {
+			this->iconCache->set(&path, &icon);
+		}
+
+		return icon;
 	}
 
 	std::string ActiveWindow::getUWPIcon(HANDLE hProc) {
@@ -235,6 +252,10 @@ namespace PaymoActiveWindow {
 
 		if (pkgPath == L"") {
 			return "";
+		}
+
+		if (this->iconCache != NULL && this->iconCache->has(&pkgPath)) {
+			return this->iconCache->get(&pkgPath);
 		}
 
 		IAppxManifestProperties* properties = this->getUWPPackageProperties(pkgPath);
@@ -267,7 +288,13 @@ namespace PaymoActiveWindow {
 			return "";
 		}
 
-		return "data:image/png;base64," + iconBase64;
+		std::string icon = "data:image/png;base64," + iconBase64;
+
+		if (this->iconCache != NULL) {
+			this->iconCache->set(&pkgPath, &icon);
+		}
+
+		return icon;
 	}
 
 	std::wstring ActiveWindow::getUWPPackage(HANDLE hProc) {
@@ -534,7 +561,7 @@ namespace PaymoActiveWindow {
 
 		// notify every callback
 		aw->mutex.lock();
-		for (std::map<watch_t, watch_callback>::iterator it = aw->watches.begin(); it != aw->watches.end(); it++) {
+		for (std::unordered_map<watch_t, watch_callback>::iterator it = aw->watches.begin(); it != aw->watches.end(); it++) {
 			try {
 				it->second(info);
 			}

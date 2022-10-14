@@ -5,14 +5,16 @@
 #include <commoncontrols.h>
 #include <shlwapi.h>
 #include <gdiplus.h>
+#include <stdexcept>
 #include <string>
 #include <sstream>
 #include <iomanip>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <thread>
 #include <mutex>
 #include <functional>
+#include "IconCache.h"
 #include "GdiPlusUtils.h"
 #include "base64/base64.h"
 
@@ -35,7 +37,7 @@ namespace PaymoActiveWindow {
 
 	class ActiveWindow {
 	public:
-		ActiveWindow();
+		ActiveWindow(unsigned int iconCacheSize = 0);
 		~ActiveWindow();
 		WindowInfo* getActiveWindow();
 		watch_t watchActiveWindow(watch_callback cb);
@@ -43,16 +45,17 @@ namespace PaymoActiveWindow {
 	private:
 		ULONG_PTR gdiPlusToken;
 		CLSID gdiPlusEncoder;
+		IconCache* iconCache = NULL;
 
 		watch_t nextWatchId = 1;
 
 		std::thread* watchThread = NULL;
 		std::mutex mutex;
 		std::atomic<bool> threadShouldExit;
-		std::map<watch_t, watch_callback> watches;
+		std::unordered_map<watch_t, watch_callback> watches;
 
 		static std::mutex smutex;
-		static std::map<HWINEVENTHOOK, ActiveWindow*> winEventProcCbCtx;
+		static std::unordered_map<HWINEVENTHOOK, ActiveWindow*> winEventProcCbCtx;
 
 		std::wstring getWindowTitle(HWND hWindow);
 		std::wstring getProcessPath(HANDLE hProc);

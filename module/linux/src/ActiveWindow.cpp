@@ -24,6 +24,7 @@ namespace PaymoActiveWindow {
 		}
 
 		delete this->iconCache;
+		this->iconCache = NULL;
 		XCloseDisplay(this->display);
 		this->display = NULL;
 	}

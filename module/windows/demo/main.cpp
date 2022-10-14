@@ -1,6 +1,7 @@
 #include "../src/ActiveWindow.h"
 #include <iostream>
 #include <windows.h>
+#include <processthreadsapi.h>
 #include <cstring>
 
 void printWindowInfo(PaymoActiveWindow::WindowInfo* inf) {
@@ -28,6 +29,16 @@ void pollWindowInfo(PaymoActiveWindow::ActiveWindow* aw) {
 	delete inf;
 }
 
+double getCpuTime() {
+	FILETIME a, b, c, d;
+	if (GetProcessTimes(GetCurrentProcess(), &a, &b, &c, &d) != 0) {
+		return (double)(d.dwLowDateTime | ((unsigned long long)d.dwHighDateTime << 32)) * 0.0000001;
+	}
+	else {
+		return 0;
+	}
+}
+
 static volatile bool loop = true;
 BOOL WINAPI signalHandler(DWORD signal) {
 	if (signal == CTRL_C_EVENT) {
@@ -39,7 +50,7 @@ BOOL WINAPI signalHandler(DWORD signal) {
 }
 
 int main(int argc, char* argv[]) {
-	PaymoActiveWindow::ActiveWindow* aw = new PaymoActiveWindow::ActiveWindow();
+	PaymoActiveWindow::ActiveWindow* aw = new PaymoActiveWindow::ActiveWindow(10);
 
 	if (argc < 2) {
 		// default mode
@@ -85,6 +96,18 @@ int main(int argc, char* argv[]) {
 		std::cout<<"Removing watch"<<std::endl;
 		aw->unwatchActiveWindow(watchId);
 		std::cout<<"Watch removed"<<std::endl;
+	}
+	else if (strcmp(argv[1], "benchmark") == 0) {
+		// benchmark mode
+		std::cout<<"Benchmark mode. Will run 10000 iterations and print CPU time"<<std::endl;
+		double start = getCpuTime();
+		for (int i = 0; i < 10000; i++) {
+			PaymoActiveWindow::WindowInfo* inf = aw->getActiveWindow();
+			delete inf;
+		}
+		double end = getCpuTime();
+
+		std::cout<<"Elapsed CPU seconds: "<<(end - start)<<std::endl;
 	}
 	else {
 		std::cout<<"Error: Invalid mode"<<std::endl;

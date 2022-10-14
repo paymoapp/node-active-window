@@ -8,6 +8,7 @@
 						"module/windows/napi/main.cpp",
 						"module/windows/napi/module.cpp",
 						"module/windows/src/ActiveWindow.cpp",
+						"module/windows/src/IconCache.cpp",
 						"module/windows/src/base64/base64.cpp",
 						"module/windows/src/GdiPlusUtils.cpp"
 					],

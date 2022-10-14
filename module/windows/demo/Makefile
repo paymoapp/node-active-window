@@ -8,7 +8,7 @@ all: create_dir demo
 
 demo: $(BUILDDIR)\demo.exe
 
-$(BUILDDIR)\demo.exe: $(BUILDDIR)\ActiveWindow.obj $(BUILDDIR)/base64.obj $(BUILDDIR)/GdiPlusUtils.obj $(BUILDDIR)\main.obj
+$(BUILDDIR)\demo.exe: $(BUILDDIR)\ActiveWindow.obj $(BUILDDIR)\IconCache.obj $(BUILDDIR)\base64.obj $(BUILDDIR)\GdiPlusUtils.obj $(BUILDDIR)\main.obj
 	@echo Linking demo.exe
 	link /out:$(BUILDDIR)\demo.exe $(BUILDDIR)\*.obj $(LIBS)
 
@@ -19,6 +19,10 @@ $(BUILDDIR)\main.obj: main.cpp
 $(BUILDDIR)\ActiveWindow.obj: $(LIBDIR)\ActiveWindow.cpp $(LIBDIR)\ActiveWindow.h
 	@echo Building $(LIBDIR)\ActiveWindow.cpp
 	cl /c /EHsc $(CLFLAGS) /Fo$(BUILDDIR)\ $(LIBDIR)\ActiveWindow.cpp
+
+$(BUILDDIR)\IconCache.obj: $(LIBDIR)\IconCache.cpp $(LIBDIR)\IconCache.h
+	@echo Building $(LIBDIR)\IconCache.cpp
+	cl /c /EHsc $(CLFLAGS) /Fo$(BUILDDIR)\ $(LIBDIR)\IconCache.cpp
 
 $(BUILDDIR)\GdiPlusUtils.obj: $(LIBDIR)\GdiPlusUtils.cpp $(LIBDIR)\GdiPlusUtils.h
 	@echo Building $(LIBDIR)\GdiPlusUtils.cpp
