@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/paymoapp/node-active-window/compare/v1.1.1...v1.2.0) (2022-10-17)
+
+
+### Features
+
+* Use a LRU cache with the size 15 to cache application icons ([851369a](https://github.com/paymoapp/node-active-window/commit/851369af93002c0310fa467d5bc22eb00f1595e3))
+
+
+### Bug Fixes
+
+* **module.windows:** Fixed crash that occured every once and a while ([7c00ace](https://github.com/paymoapp/node-active-window/commit/7c00ace09295526353a447bc292053023a8ad5ec))
+
+
+### Improvements
+
+* **module.linux:** Implemented icon cache using an LRU cache and transitioned to unordered_map ([44e74a7](https://github.com/paymoapp/node-active-window/commit/44e74a7c824cb6e156def76a1adbd5e64bf27a5d))
+* **module.macos:** Implemented icon cache using an LRU cache ([dc41b34](https://github.com/paymoapp/node-active-window/commit/dc41b349c767e59f6818ff3e56b11f9b83f3f966))
+* **module.windows:** Implemented icon cache using an LRU cache and transitioned to unordered_map ([8e0683e](https://github.com/paymoapp/node-active-window/commit/8e0683ec07a28a3a2235708cdc29de0c1a4525c9))
+
+
+### Documentation
+
+* Added documentation for icon cache and benchmark mode ([50f544d](https://github.com/paymoapp/node-active-window/commit/50f544da2c8f164870f254cab9d25caceef6b1e8))
+
 ### [1.1.1](https://github.com/paymoapp/node-active-window/compare/v1.1.0...v1.1.1) (2022-10-13)
 
 
