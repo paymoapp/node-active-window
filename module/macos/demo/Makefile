@@ -7,7 +7,7 @@ BUILDDIR=build
 CXXFLAGS=-ObjC++ -std=c++17
 LDOPTS=-lc++ -framework Foundation -framework AppKit -framework ApplicationServices
 
-SRCS=$(LIBDIR)/ActiveWindow.mm $(LIBDIR)/base64/base64.cpp
+SRCS=$(LIBDIR)/ActiveWindow.mm $(LIBDIR)/IconCache.cpp $(LIBDIR)/base64/base64.cpp
 OBJS=$(addsuffix .o,$(addprefix $(BUILDDIR)/,$(notdir $(basename $(SRCS)))))
 
 define build-cpp

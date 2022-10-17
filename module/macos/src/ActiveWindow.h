@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include "IconCache.h"
 #include "base64/base64.h"
 
 #ifndef _PAYMO_ACTIVEWINDOW_H
@@ -24,7 +25,7 @@ namespace PaymoActiveWindow {
 
 	class ActiveWindow {
 	public:
-		ActiveWindow();
+		ActiveWindow(unsigned int iconCacheSize = 0);
 		~ActiveWindow();
 		WindowInfo* getActiveWindow();
 		bool requestScreenCaptureAccess();
@@ -35,11 +36,13 @@ namespace PaymoActiveWindow {
 		bool hasScreenCaptureAccess = false;
 
 		std::vector<id> observers;
+		IconCache* iconCache = NULL;
 
 		watch_t nextWatchId = 1;
 
 		std::map<watch_t, watch_callback> watches;
 
+		std::string getAppIcon(NSImage* img, const std::string* path);
 		std::string encodeNSImage(NSImage* img);
 		std::string getWindowTitle(int pid);
 		void registerObservers();

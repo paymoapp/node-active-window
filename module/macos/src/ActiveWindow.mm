@@ -1,8 +1,12 @@
 #include "ActiveWindow.h"
 
 namespace PaymoActiveWindow {
-	ActiveWindow::ActiveWindow() {
+	ActiveWindow::ActiveWindow(unsigned int iconCacheSize) {
 		this->registerObservers();
+
+		if (iconCacheSize > 0) {
+			this->iconCache = new IconCache(iconCacheSize);
+		}
 	}
 
 	ActiveWindow::~ActiveWindow() {
@@ -13,6 +17,9 @@ namespace PaymoActiveWindow {
 		for (std::vector<id>::iterator it = this->observers.begin(); it != this->observers.end(); it++) {
 			[notificationCenter removeObserver:*it];
 		}
+
+		delete this->iconCache;
+		this->iconCache = NULL;
 	}
 
 	WindowInfo* ActiveWindow::getActiveWindow() {
@@ -30,7 +37,7 @@ namespace PaymoActiveWindow {
 		info->application = [frontApp.localizedName UTF8String];
 		info->path = [frontApp.executableURL.path UTF8String];
 		info->pid = frontApp.processIdentifier;
-		info->icon = this->encodeNSImage(frontApp.icon);
+		info->icon = this->getAppIcon(frontApp.icon, &info->path);
 
 		info->title = this->getWindowTitle(info->pid);
 
@@ -68,6 +75,20 @@ namespace PaymoActiveWindow {
 	void ActiveWindow::runLoop() {
 		// run RunLoop for 0.1 ms or until first event is handled
 		CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.0001, true);
+	}
+
+	std::string ActiveWindow::getAppIcon(NSImage* img, const std::string* path) {
+		if (this->iconCache != NULL && this->iconCache->has(path)) {
+			return this->iconCache->get(path);
+		}
+
+		std::string icon = this->encodeNSImage(img);
+
+		if (this->iconCache != NULL) {
+			this->iconCache->set(path, &icon);
+		}
+
+		return icon;
 	}
 
 	std::string ActiveWindow::encodeNSImage(NSImage* img) {

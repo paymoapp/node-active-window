@@ -3,6 +3,7 @@
 #include <iostream>
 #include <csignal>
 #include <cstring>
+#include <ctime>
 
 void printWindowInfo(PaymoActiveWindow::WindowInfo* inf) {
 	std::cout<<"Title: \""<<inf->title<<"\""<<std::endl;
@@ -34,7 +35,7 @@ void signalHandler(int signum) {
 }
 
 int main(int argc, char* argv[]) {
-	PaymoActiveWindow::ActiveWindow* aw = new PaymoActiveWindow::ActiveWindow();
+	PaymoActiveWindow::ActiveWindow* aw = new PaymoActiveWindow::ActiveWindow(10);
 
 	std::cout<<"Requesting screen capture access\n";
 	bool scaResp = aw->requestScreenCaptureAccess();
@@ -89,6 +90,20 @@ int main(int argc, char* argv[]) {
 		std::cout<<"Removing watch"<<std::endl;
 		aw->unwatchActiveWindow(watchId);
 		std::cout<<"Watch removed"<<std::endl;
+	}
+	else if (strcmp(argv[1], "benchmark") == 0) {
+		// benchmark mode
+		std::cout<<"Benchmark mode. Will run 100000 iterations and print CPU time"<<std::endl;
+		clock_t start = clock();
+		for (int i = 0; i < 100000; i++) {
+			PaymoActiveWindow::WindowInfo* inf = aw->getActiveWindow();
+			delete inf;
+		}
+		clock_t end = clock();
+
+		double elapsedTime = (double)(end - start) / CLOCKS_PER_SEC;
+
+		std::cout<<"Elapsed clocks: "<<(end - start)<<"\nElapsed seconds: "<<elapsedTime<<std::endl;
 	}
 	else {
 		std::cout<<"Error: Invalid mode"<<std::endl;
