@@ -1,7 +1,7 @@
 #include "module.h"
 
 Napi::Object module::Init(Napi::Env env, Napi::Object exports) {
-	env.SetInstanceData(new PaymoActiveWindow::ActiveWindow());
+	env.SetInstanceData(new PaymoActiveWindow::ActiveWindow(15));
 
 	exports.Set("getActiveWindow", Napi::Function::New(env, module::getActiveWindow));
 	exports.Set("subscribe", Napi::Function::New(env, module::subscribe));
