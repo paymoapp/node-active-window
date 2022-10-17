@@ -188,10 +188,11 @@ You can import the each platform dependent library as a standalone C++ / Objecti
 
 You can build the demo by navigating to the `module/<platform>/demo` folder and executing `make`. You can run the demo using `make run` and clean the build artifacts using `make clean`.
 
-The demo has 3 running modes:
+The demo has 4 running modes:
 - _default_: `make run` - in this mode the library is used to fetch the current window details, then there's a 3 second delay after which the current window is fetched again
 - _loop_: `make run MODE=loop` - in this mode the library is used the poll the current window in every 3 seconds until SIGINT (Ctrl+C) is received
 - _watch_: `make run MODE=watch` - in this mode the library is used to watch the current window and it's title. There's no polling involved in this mode
+- _benchmark_: `make run MODE=benchmark` - in this mode the library will fetch the current window details 100.000 times (or 10.000 times on windows) and it will print the total of the consumed CPU seconds while doing so
 
 ### Linux (`module/linux`)
 
@@ -226,8 +227,12 @@ typedef std::function<void(WindowInfo*)> watch_callback;
 ###### 𝑓 &nbsp;&nbsp; Constructor
 
 ```c++
-ActiveWindow();
+ActiveWindow(unsigned int iconCacheSize = 0);
 ```
+
+If you pass iconCacheSize > 0, then an LRU (least recently used) cache will be instantiated which will cache the fetched icons. This results in about 90% less CPU seconds consumed. You can use the benchmark mode of the demo to test it yourself.
+
+You should pass a cache size suitable for your application. A bigger cache results in a greater memory consumption, but it also reduces the CPU utilization if your user switches across a large set of applications.
 
 ###### 𝑓 &nbsp;&nbsp; getActiveWindow
 
@@ -281,7 +286,7 @@ using namespace std;
 using namespace PaymoActiveWindow;
 
 int main() {
-	ActiveWindow* activeWindow = new ActiveWindow();
+	ActiveWindow* activeWindow = new ActiveWindow(10);
 
 	WindowInfo* windowInfo = activeWindow->getActiveWindow();
 
@@ -346,8 +351,12 @@ typedef std::function<void(WindowInfo*)> watch_callback;
 ###### 𝑓 &nbsp;&nbsp; Constructor
 
 ```c++
-ActiveWindow();
+ActiveWindow(unsigned int iconCacheSize = 0);
 ```
+
+If you pass iconCacheSize > 0, then an LRU (least recently used) cache will be instantiated which will cache the fetched icons. This results in about 90% less CPU seconds consumed. You can use the benchmark mode of the demo to test it yourself.
+
+You should pass a cache size suitable for your application. A bigger cache results in a greater memory consumption, but it also reduces the CPU utilization if your user switches across a large set of applications.
 
 ###### 𝑓 &nbsp;&nbsp; getActiveWindow
 
@@ -393,7 +402,7 @@ using namespace std;
 using namespace PaymoActiveWindow;
 
 int main() {
-	ActiveWindow* activeWindow = new ActiveWindow();
+	ActiveWindow* activeWindow = new ActiveWindow(10);
 
 	WindowInfo* windowInfo = activeWindow->getActiveWindow();
 
@@ -471,8 +480,12 @@ typedef std::function<void(WindowInfo*)> watch_callback;
 ###### 𝑓 &nbsp;&nbsp; Constructor
 
 ```c++
-ActiveWindow();
+ActiveWindow(unsigned int iconCacheSize = 0);
 ```
+
+If you pass iconCacheSize > 0, then an LRU (least recently used) cache will be instantiated which will cache the fetched icons. This results in about 40% less CPU seconds consumed. You can use the benchmark mode of the demo to test it yourself.
+
+You should pass a cache size suitable for your application. A bigger cache results in a greater memory consumption, but it also reduces the CPU utilization if your user switches across a large set of applications.
 
 ###### 𝑓 &nbsp;&nbsp; getActiveWindow
 
