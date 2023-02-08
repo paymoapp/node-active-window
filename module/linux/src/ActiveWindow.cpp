@@ -56,19 +56,24 @@ namespace PaymoActiveWindow {
 	}
 
 	void ActiveWindow::buildAppCache() {
-		std::string userHome = std::getenv("HOME");
-		std::string xdgDataDirs = std::getenv("XDG_DATA_DIRS");
+		std::string userHome = this->safeGetEnv("HOME");
+		std::string xdgDataDirs = this->safeGetEnv("XDG_DATA_DIRS");
 
 		// fetch applications from every data dir
-		this->loadDesktopEntriesFromDirectory(userHome + "/.local/share/applications");
-		size_t startPos = 0;
-		size_t delimPos = xdgDataDirs.find(":");
-		while (delimPos != std::string::npos) {
-			this->loadDesktopEntriesFromDirectory(xdgDataDirs.substr(startPos, delimPos - startPos) + "/applications");
-			startPos = delimPos + 1;
-			delimPos = xdgDataDirs.find(":", startPos);
+		if (userHome != "") {
+			this->loadDesktopEntriesFromDirectory(userHome + "/.local/share/applications");
 		}
-		this->loadDesktopEntriesFromDirectory(xdgDataDirs.substr(startPos, delimPos - startPos) + "/applications");
+
+		if (xdgDataDirs != "") {
+			size_t startPos = 0;
+			size_t delimPos = xdgDataDirs.find(":");
+			while (delimPos != std::string::npos) {
+				this->loadDesktopEntriesFromDirectory(xdgDataDirs.substr(startPos, delimPos - startPos) + "/applications");
+				startPos = delimPos + 1;
+				delimPos = xdgDataDirs.find(":", startPos);
+			}
+			this->loadDesktopEntriesFromDirectory(xdgDataDirs.substr(startPos, delimPos - startPos) + "/applications");
+		}
 	}
 
 	watch_t ActiveWindow::watchActiveWindow(watch_callback cb) {
@@ -414,37 +419,41 @@ namespace PaymoActiveWindow {
 			return "";
 		}
 
-		std::string userHome = std::getenv("HOME");
-		std::string xdgDataDirs = std::getenv("XDG_DATA_DIRS");
+		std::string userHome = this->safeGetEnv("HOME");
+		std::string xdgDataDirs = this->safeGetEnv("XDG_DATA_DIRS");
 		std::string iconPath = "";
 
-		// legacy icon folder
-		iconPath = this->tryResolveIconWithDirectory(icon, userHome + "/.icons");
-		if (iconPath != "") {
-			return iconPath;
-		}
-
-		// user icon folder
-		iconPath = this->tryResolveIconWithDirectory(icon, userHome + "/.local/share/icons");
-		if (iconPath != "") {
-			return iconPath;
-		}
-
-		// icon folders in XDG_DATA_DIRS
-		size_t startPos = 0;
-		size_t delimPos = xdgDataDirs.find(":");
-		while (delimPos != std::string::npos) {
-			iconPath = this->tryResolveIconWithDirectory(icon, xdgDataDirs.substr(startPos, delimPos - startPos) + "/icons");
+		if (userHome != "") {
+			// legacy icon folder
+			iconPath = this->tryResolveIconWithDirectory(icon, userHome + "/.icons");
 			if (iconPath != "") {
 				return iconPath;
 			}
 
-			startPos = delimPos + 1;
-			delimPos = xdgDataDirs.find(":", startPos);
+			// user icon folder
+			iconPath = this->tryResolveIconWithDirectory(icon, userHome + "/.local/share/icons");
+			if (iconPath != "") {
+				return iconPath;
+			}
 		}
-		iconPath = this->tryResolveIconWithDirectory(icon, xdgDataDirs.substr(startPos, delimPos - startPos) + "/icons");
-		if (iconPath != "") {
-			return iconPath;
+
+		if (xdgDataDirs != "") {
+			// icon folders in XDG_DATA_DIRS
+			size_t startPos = 0;
+			size_t delimPos = xdgDataDirs.find(":");
+			while (delimPos != std::string::npos) {
+				iconPath = this->tryResolveIconWithDirectory(icon, xdgDataDirs.substr(startPos, delimPos - startPos) + "/icons");
+				if (iconPath != "") {
+					return iconPath;
+				}
+
+				startPos = delimPos + 1;
+				delimPos = xdgDataDirs.find(":", startPos);
+			}
+			iconPath = this->tryResolveIconWithDirectory(icon, xdgDataDirs.substr(startPos, delimPos - startPos) + "/icons");
+			if (iconPath != "") {
+				return iconPath;
+			}
 		}
 
 		// pixmaps folder
@@ -526,6 +535,16 @@ namespace PaymoActiveWindow {
 
 		closedir(d);
 		return true;
+	}
+
+	std::string ActiveWindow::safeGetEnv(const char* envVar) {
+		char* value = std::getenv(envVar);
+
+		if (value == nullptr) {
+			return "";
+		}
+
+		return value;
 	}
 
 	std::string ActiveWindow::encodePngIcon(std::string iconPath) {
