@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/paymoapp/node-active-window/compare/v1.2.0...v1.2.1) (2023-02-08)
+
+
+### Bug Fixes
+
+* **module.linux:** Handle the case where XDG_DATA_DIRS or HOME env var is not set ([42d1655](https://github.com/paymoapp/node-active-window/commit/42d165567ec84304ac495e7c798d52085dad2a53))
+
 ## [1.2.0](https://github.com/paymoapp/node-active-window/compare/v1.1.1...v1.2.0) (2022-10-17)
 
 
