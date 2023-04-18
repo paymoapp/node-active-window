@@ -45,7 +45,17 @@ namespace PaymoActiveWindow {
 	}
 
 	bool ActiveWindow::requestScreenCaptureAccess() {
-		if (@available(macOS 10.15, *)) {
+		if (@available(macOS 11, *)) {
+			// this api SHOULD work on 10.15 as well,
+			// but it doesn't: https://developer.apple.com/forums/thread/683860
+			this->hasScreenCaptureAccess = CGPreflightScreenCaptureAccess();
+
+			if (!this->hasScreenCaptureAccess) {
+				// request
+				this->hasScreenCaptureAccess = CGRequestScreenCaptureAccess();
+			}
+		}
+		else if (@available(macOS 10.15, *)) {
 			// this is a hack to check if screen capture access is granted on catalina.
 			// Source: https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina/58985069#58985069
 			this->hasScreenCaptureAccess = false;
@@ -69,16 +79,6 @@ namespace PaymoActiveWindow {
 					this->hasScreenCaptureAccess = true;
 					break;
 				}
-			}
-		}
-		else if (@available(macOS 11, *)) {
-			// this api SHOULD work on 10.15 as well,
-			// but it doesn't: https://developer.apple.com/forums/thread/683860
-			this->hasScreenCaptureAccess = CGPreflightScreenCaptureAccess();
-
-			if (!this->hasScreenCaptureAccess) {
-				// request
-				this->hasScreenCaptureAccess = CGRequestScreenCaptureAccess();
 			}
 		}
 		else {
