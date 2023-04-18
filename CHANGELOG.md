@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/paymoapp/node-active-window/compare/v1.2.1...v1.2.2) (2023-04-18)
+
+
+### Bug Fixes
+
+* **module.macos:** MacOS Catalina doesn't have the screenCaptureAcces CG APIs implemented, so implemented it using a hack ([483d671](https://github.com/paymoapp/node-active-window/commit/483d67136e5bc4c9f6bef75e468ad7c56483bb7a))
+
 ### [1.2.1](https://github.com/paymoapp/node-active-window/compare/v1.2.0...v1.2.1) (2023-02-08)
 
 
