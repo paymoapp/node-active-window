@@ -5,7 +5,7 @@ LIBDIR=../src
 BUILDDIR=build
 
 CXXFLAGS=--std=c++17
-LDOPTS=-lX11 -licuuc -lpthread
+LDOPTS=-lX11 -lpthread
 
 SRCS=$(LIBDIR)/ActiveWindow.cpp $(LIBDIR)/IconCache.cpp $(LIBDIR)/SimpleIni/ConvertUTF.c $(LIBDIR)/base64/base64.cpp $(LIBDIR)/lodepng/lodepng.cpp
 OBJS=$(addsuffix .o,$(addprefix $(BUILDDIR)/,$(notdir $(basename $(SRCS)))))
