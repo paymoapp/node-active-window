@@ -246,7 +246,7 @@ namespace PaymoActiveWindow {
 		// check if there's a direct match (using WM_CLASS)
 		if (this->appToIcon.find(app) != this->appToIcon.end()) {
 			// we have an icon
-			return this->encodePngIcon(this->appToIcon[app]);
+			return this->encodeIcon(this->appToIcon[app]);
 		}
 
 		// find using string match
@@ -254,7 +254,7 @@ namespace PaymoActiveWindow {
 		for (std::unordered_map<std::string, std::string>::iterator it = this->appToIcon.begin(); it != this->appToIcon.end(); it++) {
 			if (it->first.find(needle) != std::string::npos) {
 				// we have a likely match
-				return this->encodePngIcon(it->second);
+				return this->encodeIcon(it->second);
 			}
 		}
 
@@ -547,7 +547,17 @@ namespace PaymoActiveWindow {
 		return value;
 	}
 
-	std::string ActiveWindow::encodePngIcon(std::string iconPath) {
+	std::string ActiveWindow::encodeIcon(std::string iconPath) {
+		std::string fileExtension = iconPath.substr(iconPath.find_last_of(".") + 1);
+
+		if (fileExtension != "png" && fileExtension != "svg") {
+			// not supported file extension (XPM)
+			// only PNG, SVG and XPM are valid options, but we can't handle XPM yet
+			// ALSO: extension must be lowercase, no need for case conversion
+			// Ref: https://developer-old.gnome.org/icon-theme-spec/
+			return "";
+		}
+
 		int fd = open(iconPath.c_str(), O_RDONLY);
 
 		if (fd < 0) {
@@ -570,7 +580,9 @@ namespace PaymoActiveWindow {
 
 		std::string icon(buf.begin(), buf.end());
 
-		return "data:image/png;base64," + base64_encode(icon);
+		std::string contentType = fileExtension == "png" ? "data:image/png" : "data:image/svg+xml";
+
+		return contentType + ";base64," + base64_encode(icon);
 	}
 
 	void ActiveWindow::runWatchThread() {

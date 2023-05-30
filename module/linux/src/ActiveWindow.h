@@ -75,7 +75,7 @@ namespace PaymoActiveWindow {
 		std::string buildIconPath(std::string icon, std::string dir);
 		bool dirExists(std::string dir);
 		std::string safeGetEnv(const char* envVar);
-		std::string encodePngIcon(std::string iconPath);
+		std::string encodeIcon(std::string iconPath);
 		void runWatchThread();
 		static int xErrorHandler(Display* display, XErrorEvent* error);
 	};
