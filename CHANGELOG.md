@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.3](https://github.com/paymoapp/node-active-window/compare/v1.2.2...v1.2.3) (2023-05-30)
+
+
+### Bug Fixes
+
+* **module.linux.demo:** Removed ICU from linking options since it's no longer used ([e71063d](https://github.com/paymoapp/node-active-window/commit/e71063d8e16b7ca1ce1d601207cfad61d9d9def2))
+* **module.linux:** Hardcoded icons are not necessarily PNG files, we should handle SVG and XPM as well. XPM is not treated, but SVG can be easily resolved ([b8904ef](https://github.com/paymoapp/node-active-window/commit/b8904efd71f5ad92fa1496c0dc428b42673a0253))
+
 ### [1.2.2](https://github.com/paymoapp/node-active-window/compare/v1.2.1...v1.2.2) (2023-04-18)
 
 
