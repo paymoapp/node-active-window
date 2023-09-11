@@ -153,8 +153,19 @@ namespace PaymoActiveWindow {
 				continue;
 			}
 
-			windowTitle = window[(id)kCGWindowName];
-			break;
+			if (window[(id)kCGWindowName]) {
+				// we have a title and since we iterate from top to bottom
+				// this is the title we're looking for
+				windowTitle = window[(id)kCGWindowName];
+
+				if (windowTitle.length == 0) {
+					// sometimes a popup is open and it does not have title
+					// try to get title for the window under it
+					continue;
+				}
+
+				break;
+			}
 		}
 
 		std::string title(windowTitle != nil ? [windowTitle UTF8String] : "");
