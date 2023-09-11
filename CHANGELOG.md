@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.5](https://github.com/paymoapp/node-active-window/compare/v1.2.4...v1.2.5) (2023-09-11)
+
+
+### Build/CI
+
+* Fixed gitlab config to use docker for building addon for linux ([2b43a8f](https://github.com/paymoapp/node-active-window/commit/2b43a8f1411de2d3dc771ecaff73afd7ad1cb138))
+
 ### [1.2.4](https://github.com/paymoapp/node-active-window/compare/v1.2.3...v1.2.4) (2023-09-11)
 
 
