@@ -1,6 +1,4 @@
 variables:
-  TEST_IMAGE: "node:14-alpine"
-  BUILD_IMAGE: "gitlab.paymoapp.com:5555/envscripts/img-ubuntu-base"
   ADDON_BUILD_IMAGE: "gitlab.paymoapp.com:5555/envscripts/img-ubuntu-widget-build"
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_DEPTH: 50
@@ -19,7 +17,6 @@ variables:
     - branches
 
 .job_test:
-  image: $TEST_IMAGE
   stage: test
   rules:
     - if: $CI_MERGE_REQUEST_ID
@@ -89,20 +86,18 @@ build-addon-linux:
     - .only_any_v_tags
     - .job_build_addon
   image: $ADDON_BUILD_IMAGE
+  tags:
+    - docker
 
 # Publish stage
 build-library:
   extends:
     - .only_any_v_tags
-  image: $BUILD_IMAGE
   stage: publish
   before_script:
     - npm ci --ignore-scripts
   script:
     - npm run build:ts
-    # - npm set @paymo:registry https://gitlab.paymoapp.com/api/v4/projects/$CI_PROJECT_ID/packages/npm/
-    # - npm set //gitlab.paymoapp.com/api/v4/projects/$CI_PROJECT_ID/packages/npm/:_authToken $CI_JOB_TOKEN
-    # - npm publish
     - npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
     - npm publish --access public
     - LAST_RELEASE="$(git describe --abbrev=0 --tags ${CI_COMMIT_TAG}^)"
