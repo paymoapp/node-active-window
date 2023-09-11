@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.4](https://github.com/paymoapp/node-active-window/compare/v1.2.3...v1.2.4) (2023-09-11)
+
+
+### Bug Fixes
+
+* **module.macos:** Full screen applications did not have a title field ([29ae255](https://github.com/paymoapp/node-active-window/commit/29ae2550f19a0fae1e3303f0fcfc0e8169d9f22b))
+
 ### [1.2.3](https://github.com/paymoapp/node-active-window/compare/v1.2.2...v1.2.3) (2023-05-30)
 
 
