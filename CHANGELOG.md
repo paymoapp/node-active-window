@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.6](https://github.com/paymoapp/node-active-window/compare/v1.2.5...v1.2.6) (2023-09-15)
+
+
+### Bug Fixes
+
+* **module.linux:** Fixed segmentation fault when executable path was empty ([4bd7d9e](https://github.com/paymoapp/node-active-window/commit/4bd7d9e402d3fc8769bd13714d459fa79eaff70e))
+
 ### [1.2.5](https://github.com/paymoapp/node-active-window/compare/v1.2.4...v1.2.5) (2023-09-11)
 
 
