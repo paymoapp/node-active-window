@@ -217,7 +217,9 @@ namespace PaymoActiveWindow {
 		} while (bytesRead > 0);
 
 		// remove last null which was converted to space
-		path.pop_back();
+		if (path.length() > 0) {
+			path.pop_back();
+		}
 
 		close(fd);
 
