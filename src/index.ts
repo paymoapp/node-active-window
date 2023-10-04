@@ -20,59 +20,30 @@ if (SUPPORTED_PLATFORMS.includes(process.platform)) {
 	);
 }
 
-const encodeWindowInfo = (info: NativeWindowInfo): WindowInfo => {
-	return {
-		title: info.title,
-		application: info.application,
-		path: info.path,
-		pid: info.pid,
-		icon: info.icon,
-		...(process.platform == 'win32'
-			? {
-					windows: {
-						isUWPApp: info['windows.isUWPApp'] || false,
-						uwpPackage: info['windows.uwpPackage'] || ''
-					}
-			  }
-			: {})
-	};
-};
+class ActiveWindowClass implements IActiveWindow {
+	private options: InitializeOptions = {};
 
-const ActiveWindow: IActiveWindow = {
-	getActiveWindow: (): WindowInfo => {
-		if (!addon) {
-			throw new Error('Failed to load native addon');
-		}
+	private encodeWindowInfo(info: NativeWindowInfo): WindowInfo {
+		return {
+			title: info.title,
+			application: info.application,
+			path: info.path,
+			pid: info.pid,
+			icon: info.icon,
+			...(process.platform == 'win32'
+				? {
+						windows: {
+							isUWPApp: info['windows.isUWPApp'] || false,
+							uwpPackage: info['windows.uwpPackage'] || ''
+						}
+				  }
+				: {})
+		};
+	}
 
-		const info = addon.getActiveWindow();
+	public initialize(options: InitializeOptions = {}): void {
+		this.options = options;
 
-		return encodeWindowInfo(info);
-	},
-	subscribe: (callback: (windowInfo: WindowInfo | null) => void): number => {
-		if (!addon) {
-			throw new Error('Failed to load native addon');
-		}
-
-		const watchId = addon.subscribe(nativeWindowInfo => {
-			callback(
-				!nativeWindowInfo ? null : encodeWindowInfo(nativeWindowInfo)
-			);
-		});
-
-		return watchId;
-	},
-	unsubscribe: (watchId: number): void => {
-		if (!addon) {
-			throw new Error('Failed to load native addon');
-		}
-
-		if (watchId < 0) {
-			throw new Error('Watch ID must be a positive number');
-		}
-
-		addon.unsubscribe(watchId);
-	},
-	initialize: ({ osxRunLoop }: InitializeOptions = {}): void => {
 		if (!addon) {
 			throw new Error('Failed to load native addon');
 		}
@@ -82,7 +53,7 @@ const ActiveWindow: IActiveWindow = {
 		}
 
 		// set up runloop on MacOS
-		if (process.platform == 'darwin' && osxRunLoop) {
+		if (process.platform == 'darwin' && this.options.osxRunLoop == 'all') {
 			const interval = setInterval(() => {
 				if (addon && addon.runLoop) {
 					addon.runLoop();
@@ -91,8 +62,9 @@ const ActiveWindow: IActiveWindow = {
 				}
 			}, 100);
 		}
-	},
-	requestPermissions: (): boolean => {
+	}
+
+	public requestPermissions(): boolean {
 		if (!addon) {
 			throw new Error('Failed to load native addon');
 		}
@@ -103,7 +75,59 @@ const ActiveWindow: IActiveWindow = {
 
 		return true;
 	}
-};
+
+	public getActiveWindow(): WindowInfo {
+		if (!addon) {
+			throw new Error('Failed to load native addon');
+		}
+
+		// use runloop on MacOS if requested
+		if (
+			process.platform == 'darwin' &&
+			this.options.osxRunLoop &&
+			addon.runLoop
+		) {
+			addon.runLoop();
+		}
+
+		const info = addon.getActiveWindow();
+
+		return this.encodeWindowInfo(info);
+	}
+
+	public subscribe(
+		callback: (windowInfo: WindowInfo | null) => void
+	): number {
+		if (!addon) {
+			throw new Error('Failed to load native addon');
+		}
+
+		const watchId = addon.subscribe(nativeWindowInfo => {
+			callback(
+				!nativeWindowInfo
+					? null
+					: this.encodeWindowInfo(nativeWindowInfo)
+			);
+		});
+
+		return watchId;
+	}
+
+	public unsubscribe(watchId: number): void {
+		if (!addon) {
+			throw new Error('Failed to load native addon');
+		}
+
+		if (watchId < 0) {
+			throw new Error('Watch ID must be a positive number');
+		}
+
+		addon.unsubscribe(watchId);
+	}
+}
+
+const ActiveWindow = new ActiveWindowClass();
 
 export * from './types';
+export { ActiveWindow };
 export default ActiveWindow;

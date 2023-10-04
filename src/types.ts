@@ -30,7 +30,7 @@ export interface Module<T> {
 }
 
 export interface InitializeOptions {
-	osxRunLoop?: boolean;
+	osxRunLoop?: false | 'get' | 'all';
 }
 
 export interface IActiveWindow extends Omit<Module<WindowInfo>, 'runLoop'> {

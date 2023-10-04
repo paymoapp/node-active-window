@@ -9,7 +9,7 @@ import ws from 'ws';
 
 import ActiveWindow, { WindowInfo } from '../src';
 
-ActiveWindow.initialize({ osxRunLoop: true });
+ActiveWindow.initialize({ osxRunLoop: 'all' });
 ActiveWindow.requestPermissions();
 
 const server = http.createServer((req, res) => {

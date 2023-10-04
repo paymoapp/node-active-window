@@ -23,8 +23,6 @@ namespace PaymoActiveWindow {
 	}
 
 	WindowInfo* ActiveWindow::getActiveWindow() {
-		this->runLoop();
-
 		NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
 		NSRunningApplication* frontApp = [workspace frontmostApplication];
 
