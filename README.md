@@ -14,6 +14,7 @@ NodeJS library using native modules to get the active window and some metadata (
 - [Getting started](#getting-started)
     - [Installation](#installation)
     - [Native addon](#native-addon)
+    - [Usage](#usage)
     - [Example](#example)
 - [API](#api)
     - [Data structures](#data-structures)
@@ -56,6 +57,14 @@ The project uses Node-API version 6, you can check [this table](https://nodejs.o
 If there's a compliant prebuilt binary, it will be downloaded during installation, or it will be built. You can also rebuild it anytime by running `npm run build:gyp`.
 
 The library has native addons for all the three major operating systems: Windows, MacOS and Linux. For Linux, only the X11 windowing system is supported.
+
+#### Usage
+
+You need to import the library and call the [`initialize`](#𝑓--initialize) function. __For MacOS see the method's documentation for additional required steps and caveats.__
+
+On MacOS you need to check for the screen recording permission (using [`requestPermissions`](#𝑓--requestpermissions)), otherwise you won't be able to fetch the window titles.
+
+Then you can use the [`getActiveWindow`](#𝑓--getactivewindow) or [`subscribe`](#𝑓--subscribe) methods to fetch the current active window or watch for window changes.
 
 #### Example
 
@@ -154,14 +163,19 @@ Remove the event listener associated with the supplied watch ID. Use this to uns
 
 ```ts
 interface IActiveWindow {
-	initialize(opts?: { osxRunLoop: boolean }): void;
+	initialize(opts?: { osxRunLoop: false | 'get' | 'all' }): void;
 	// ...
 }
 ```
 
 On some platforms (Linux) the library needs some initialization to be done. You must call this function before doing anything with the library regardless of the current platform.
 
-If you're not using this library in a GUI application there might be no runloop running for the main thread. In this case you should set the `osxRunLoop` property to true if you want to use subscriptions.
+If you're not using this library in a GUI application there might be no run loop running for the main thread. In this case you __MUST__ set the `osxRunLoop` property to get results. On Electron you have a working run loop in the main process and you should use IPCs to access the lib from the renderer.
+
+Possible values for `osxRunLoop`:
+- `false` or not set __(default)__: Don't run the run loop manually.
+- `get`: Run the run loop only for the `getActiveWindow` calls. Subscriptions will not work with this mode.
+- `all`: Run the run loop both for `getActiveWindow` calls and for subscriptions.
 
 ###### 𝑓 &nbsp;&nbsp; requestPermissions
 
