@@ -1,6 +1,6 @@
 {
   "name": "@paymoapp/active-window",
-  "version": "1.2.6",
+  "version": "2.0.0",
   "description": "NodeJS library using native modules to get the active window and some metadata (including the application icon) on Windows, MacOS and Linux.",
   "main": "./dist/index.js",
   "scripts": {

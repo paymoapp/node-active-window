@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/paymoapp/node-active-window/compare/v1.2.6...v2.0.0) (2023-10-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **module.macos:** Changed the API for the initialize method
+
+### Bug Fixes
+
+* **module.macos:** Modified runLoop logic that caused the entire process to hang on newer electron versions ([bd3f3d3](https://github.com/paymoapp/node-active-window/commit/bd3f3d3ac35feac92b56410643404a3845e6e32f))
+
+
+### Documentation
+
+* Added documentation for API changes and added usage guide ([4808c10](https://github.com/paymoapp/node-active-window/commit/4808c103c33483b7e3ca4db56d3e0d4bd9fd032c))
+
 ### [1.2.6](https://github.com/paymoapp/node-active-window/compare/v1.2.5...v1.2.6) (2023-09-15)
 
 
