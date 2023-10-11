@@ -5,12 +5,12 @@
 #define _PAYMO_MODULE_H
 
 namespace module {
-	Napi::Object Init(Napi::Env env, Napi::Object exports);
+	void Init(Napi::Env env, Napi::Object exports);
 
-	Napi::Object getActiveWindow(const Napi::CallbackInfo& info);
-	Napi::Number subscribe(const Napi::CallbackInfo& info);
+	Napi::Value getActiveWindow(const Napi::CallbackInfo& info);
+	Napi::Value subscribe(const Napi::CallbackInfo& info);
 	void unsubscribe(const Napi::CallbackInfo& info);
-	Napi::Boolean requestPermissions(const Napi::CallbackInfo& info);
+	Napi::Value requestPermissions(const Napi::CallbackInfo& info);
 	void runLoop(const Napi::CallbackInfo& info);
 
 	// helpers
