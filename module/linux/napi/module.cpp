@@ -115,6 +115,7 @@ void module::initialize(const Napi::CallbackInfo& info) {
 
 Napi::Object module::encodeWindowInfo(Napi::Env env, PaymoActiveWindow::WindowInfo* windowInfo) {
 	Napi::Object result = Napi::Object::New(env);
+
 	result.Set("title", Napi::String::New(env, windowInfo->title));
 	result.Set("application", Napi::String::New(env, windowInfo->application));
 	result.Set("path", Napi::String::New(env, windowInfo->path));
