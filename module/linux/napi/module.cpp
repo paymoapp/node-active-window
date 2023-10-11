@@ -1,60 +1,62 @@
 #include "module.h"
 
-Napi::Object module::Init(Napi::Env env, Napi::Object exports) {
+void module::Init(Napi::Env env, Napi::Object exports) {
 	env.SetInstanceData(new PaymoActiveWindow::ActiveWindow(15));
 
-	exports.Set("getActiveWindow", Napi::Function::New(env, module::getActiveWindow));
-	exports.Set("subscribe", Napi::Function::New(env, module::subscribe));
-	exports.Set("unsubscribe", Napi::Function::New(env, module::unsubscribe));
-	exports.Set("initialize", Napi::Function::New(env, module::initialize));
-
-	return exports;
+	exports.Set("getActiveWindow", Napi::Function::New<module::getActiveWindow>(env));
+	exports.Set("subscribe", Napi::Function::New<module::subscribe>(env));
+	exports.Set("unsubscribe", Napi::Function::New<module::unsubscribe>(env));
+	exports.Set("initialize", Napi::Function::New<module::initialize>(env));
 }
 
-Napi::Object module::getActiveWindow(const Napi::CallbackInfo& info) {
-	PaymoActiveWindow::ActiveWindow* activeWindow = info.Env().GetInstanceData<PaymoActiveWindow::ActiveWindow>();
+Napi::Value module::getActiveWindow(const Napi::CallbackInfo& info) {
+	Napi::Env env = info.Env();
+
+	PaymoActiveWindow::ActiveWindow* activeWindow = env.GetInstanceData<PaymoActiveWindow::ActiveWindow>();
 	if (activeWindow == NULL) {
-		Napi::Error::New(info.Env(), "ActiveWindow module not initialized").ThrowAsJavaScriptException();
-		return Napi::Object::New(info.Env());
+		Napi::Error::New(env, "ActiveWindow module not initialized").ThrowAsJavaScriptException();
+		return env.Null();
 	}
 
 	PaymoActiveWindow::WindowInfo* windowInfo = activeWindow->getActiveWindow();
 	if (windowInfo == NULL) {
-		Napi::Error::New(info.Env(), "Failed to get active window").ThrowAsJavaScriptException();
-		return Napi::Object::New(info.Env());
+		Napi::Error::New(env, "Failed to get active window").ThrowAsJavaScriptException();
+		return env.Null();
 	}
 
-	Napi::Object result = module::encodeWindowInfo(info.Env(), windowInfo);
+	Napi::Object result = encodeWindowInfo(env, windowInfo);
 
 	delete windowInfo;
 
 	return result;
 }
 
-Napi::Number module::subscribe(const Napi::CallbackInfo& info) {
-	PaymoActiveWindow::ActiveWindow* activeWindow = info.Env().GetInstanceData<PaymoActiveWindow::ActiveWindow>();
+Napi::Value module::subscribe(const Napi::CallbackInfo& info) {
+	Napi::Env env = info.Env();
+
+	PaymoActiveWindow::ActiveWindow* activeWindow = env.GetInstanceData<PaymoActiveWindow::ActiveWindow>();
 	if (activeWindow == NULL) {
-		Napi::Error::New(info.Env(), "ActiveWindow module not initialized").ThrowAsJavaScriptException();
-		return Napi::Number::New(info.Env(), -1);
+		Napi::Error::New(env, "ActiveWindow module not initialized").ThrowAsJavaScriptException();
+		return env.Null();
 	}
 
 	if (info.Length() != 1) {
-		Napi::TypeError::New(info.Env(), "Expected 1 argument").ThrowAsJavaScriptException();
-		return Napi::Number::New(info.Env(), -1);
+		Napi::TypeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
+		return env.Null();
 	}
 
 	if (!info[0].IsFunction()) {
-		Napi::TypeError::New(info.Env(), "Expected first argument to be function").ThrowAsJavaScriptException();
-		return Napi::Number::New(info.Env(), -1);
+		Napi::TypeError::New(env, "Expected first argument to be function").ThrowAsJavaScriptException();
+		return env.Null();
 	}
 
-	Napi::ThreadSafeFunction tsfn = Napi::ThreadSafeFunction::New(info.Env(), info[0].As<Napi::Function>(), "Active Window Callback", 0, 2);
+	Napi::ThreadSafeFunction tsfn = Napi::ThreadSafeFunction::New(env, info[0].As<Napi::Function>(), "Active Window Callback", 0, 2);
 	auto mainThreadCallback = [](Napi::Env env, Napi::Function jsCallback, PaymoActiveWindow::WindowInfo* windowInfo) {
 		if (windowInfo == NULL) {
 			jsCallback.Call({ env.Null() });
 		}
 		else {
-			jsCallback.Call({ module::encodeWindowInfo(env, windowInfo) });
+			jsCallback.Call({ encodeWindowInfo(env, windowInfo) });
 			delete windowInfo;
 		}
 	};
@@ -72,23 +74,25 @@ Napi::Number module::subscribe(const Napi::CallbackInfo& info) {
 		tsfn.BlockingCall(arg, mainThreadCallback);
 	});
 
-	return Napi::Number::New(info.Env(), watchId);
+	return Napi::Number::New(env, watchId);
 }
 
 void module::unsubscribe(const Napi::CallbackInfo& info) {
-	PaymoActiveWindow::ActiveWindow* activeWindow = info.Env().GetInstanceData<PaymoActiveWindow::ActiveWindow>();
+	Napi::Env env = info.Env();
+
+	PaymoActiveWindow::ActiveWindow* activeWindow = env.GetInstanceData<PaymoActiveWindow::ActiveWindow>();
 	if (activeWindow == NULL) {
-		Napi::Error::New(info.Env(), "ActiveWindow module not initialized").ThrowAsJavaScriptException();
+		Napi::Error::New(env, "ActiveWindow module not initialized").ThrowAsJavaScriptException();
 		return;
 	}
 
 	if (info.Length() != 1) {
-		Napi::TypeError::New(info.Env(), "Expected 1 argument").ThrowAsJavaScriptException();
+		Napi::TypeError::New(env, "Expected 1 argument").ThrowAsJavaScriptException();
 		return;
 	}
 
 	if (!info[0].IsNumber()) {
-		Napi::TypeError::New(info.Env(), "Expected first argument to be number").ThrowAsJavaScriptException();
+		Napi::TypeError::New(env, "Expected first argument to be number").ThrowAsJavaScriptException();
 		return;
 	}
 
@@ -98,9 +102,11 @@ void module::unsubscribe(const Napi::CallbackInfo& info) {
 }
 
 void module::initialize(const Napi::CallbackInfo& info) {
-	PaymoActiveWindow::ActiveWindow* activeWindow = info.Env().GetInstanceData<PaymoActiveWindow::ActiveWindow>();
+	Napi::Env env = info.Env();
+
+	PaymoActiveWindow::ActiveWindow* activeWindow = env.GetInstanceData<PaymoActiveWindow::ActiveWindow>();
 	if (activeWindow == NULL) {
-		Napi::Error::New(info.Env(), "ActiveWindow module not initialized").ThrowAsJavaScriptException();
+		Napi::Error::New(env, "ActiveWindow module not initialized").ThrowAsJavaScriptException();
 		return;
 	}
 
