@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/paymoapp/node-active-window/compare/v2.0.0...v2.0.1) (2023-10-11)
+
+
+### Improvements
+
+* **module.linux:** Changed the way methods are exported from the addon ([6730ca0](https://github.com/paymoapp/node-active-window/commit/6730ca0156ddc51b4a705cde3721a64a163e17c6))
+* **module.macos:** Changed the way methods are exported from the addon ([73dce35](https://github.com/paymoapp/node-active-window/commit/73dce356e1d72b27e4b038688e19bc5979ebc14f))
+* **module.window:** Changed the way methods are exported from the addon ([7737045](https://github.com/paymoapp/node-active-window/commit/7737045b03d1028fe59b0115fe8c0bebeb8b4f59))
+
 ## [2.0.0](https://github.com/paymoapp/node-active-window/compare/v1.2.6...v2.0.0) (2023-10-04)
 
 
