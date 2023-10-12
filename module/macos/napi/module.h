@@ -15,6 +15,7 @@ namespace module {
 
 	// helpers
 	Napi::Object encodeWindowInfo(Napi::Env env, PaymoActiveWindow::WindowInfo* windowInfo);
+	void tsfnMainThreadCallback(Napi::Env env, Napi::Function jsCallback, void* ctx, PaymoActiveWindow::WindowInfo* data);
 }
 
 #endif
