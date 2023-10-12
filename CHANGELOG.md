@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.2](https://github.com/paymoapp/node-active-window/compare/v2.0.1...v2.0.2) (2023-10-12)
+
+
+### Improvements
+
+* **module.linux:** Replace TSFN with TypedTSFN ([acbd6e6](https://github.com/paymoapp/node-active-window/commit/acbd6e626a3233b5761ce6b5fb07d6c90f8e79c7))
+* **module.macos:** Replace TSFN with TypedTSFN ([e2bac3d](https://github.com/paymoapp/node-active-window/commit/e2bac3d77862e849dd371923dcaa8fac483b2800))
+* **module.window:** Replace TSFN with TypedTSFN ([6766906](https://github.com/paymoapp/node-active-window/commit/67669066a717fef72ae88d0c6b042acac373d4f4))
+
 ### [2.0.1](https://github.com/paymoapp/node-active-window/compare/v2.0.0...v2.0.1) (2023-10-11)
 
 
