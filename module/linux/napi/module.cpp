@@ -50,20 +50,15 @@ Napi::Value module::subscribe(const Napi::CallbackInfo& info) {
 		return env.Null();
 	}
 
-	Napi::ThreadSafeFunction tsfn = Napi::ThreadSafeFunction::New(env, info[0].As<Napi::Function>(), "Active Window Callback", 0, 2);
-	auto mainThreadCallback = [](Napi::Env env, Napi::Function jsCallback, PaymoActiveWindow::WindowInfo* windowInfo) {
-		if (windowInfo == NULL) {
-			jsCallback.Call({ env.Null() });
-		}
-		else {
-			jsCallback.Call({ encodeWindowInfo(env, windowInfo) });
-			delete windowInfo;
-		}
-	};
+	Napi::TypedThreadSafeFunction tsfn = Napi::TypedThreadSafeFunction<
+		void,
+		PaymoActiveWindow::WindowInfo,
+		tsfnMainThreadCallback
+	>::New(env, info[0].As<Napi::Function>(), "Active Window Callback", 0, 1);
 
-	PaymoActiveWindow::watch_t watchId = activeWindow->watchActiveWindow([tsfn, mainThreadCallback](PaymoActiveWindow::WindowInfo* windowInfo) {
+	PaymoActiveWindow::watch_t watchId = activeWindow->watchActiveWindow([tsfn](PaymoActiveWindow::WindowInfo* windowInfo) {
 		if (windowInfo == NULL) {
-			tsfn.BlockingCall((PaymoActiveWindow::WindowInfo*)NULL, mainThreadCallback);
+			tsfn.BlockingCall((PaymoActiveWindow::WindowInfo*)NULL);
 			return;
 		}
 
@@ -71,7 +66,7 @@ Napi::Value module::subscribe(const Napi::CallbackInfo& info) {
 		PaymoActiveWindow::WindowInfo* arg = new PaymoActiveWindow::WindowInfo();
 		*arg = *windowInfo;
 
-		tsfn.BlockingCall(arg, mainThreadCallback);
+		tsfn.BlockingCall(arg);
 	});
 
 	return Napi::Number::New(env, watchId);
@@ -123,4 +118,14 @@ Napi::Object module::encodeWindowInfo(Napi::Env env, PaymoActiveWindow::WindowIn
 	result.Set("icon", Napi::String::New(env, windowInfo->icon));
 
 	return result;
+}
+
+void module::tsfnMainThreadCallback(Napi::Env env, Napi::Function jsCallback, void* ctx, PaymoActiveWindow::WindowInfo* data) {
+	if (data == NULL) {
+		jsCallback.Call({ env.Null() });
+	}
+	else {
+		jsCallback.Call({ encodeWindowInfo(env, data) });
+		delete data;
+	}
 }
