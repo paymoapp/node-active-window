@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.5](https://github.com/paymoapp/node-active-window/compare/v2.0.4...v2.0.5) (2023-10-13)
+
+
+### Build/CI
+
+* **gitlab:** Fixed the XCODE_TOOLS path ([adc8bc5](https://github.com/paymoapp/node-active-window/commit/adc8bc5d9beccfeb7e053c3a5affb25aa5963e73))
+
 ### [2.0.4](https://github.com/paymoapp/node-active-window/compare/v2.0.3...v2.0.4) (2023-10-13)
 
 
