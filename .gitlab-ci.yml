@@ -63,7 +63,7 @@ build-addon-windows:
     - win
   hooks:
     pre_get_sources_script:
-      - npm config set msvs_version $MSVS_VERSION
+      - npm config --location=global set msvs_version $MSVS_VERSION
 
 build-addon-mac-x64:
   extends:
