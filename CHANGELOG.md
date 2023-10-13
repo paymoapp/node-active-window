@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.3](https://github.com/paymoapp/node-active-window/compare/v2.0.2...v2.0.3) (2023-10-13)
+
+
+### Build/CI
+
+* **gitlab:** Set required xcode command line tools ([76a8e54](https://github.com/paymoapp/node-active-window/commit/76a8e54ae308b574ef5fafc36dc10ea3ee7d0e44))
+
 ### [2.0.2](https://github.com/paymoapp/node-active-window/compare/v2.0.1...v2.0.2) (2023-10-12)
 
 
