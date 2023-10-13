@@ -3,7 +3,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_DEPTH: 50
   MSVS_VERSION: 2019
-  XCODE_TOOLS: "/Application/Xcode14_3_1.app"
+  XCODE_TOOLS: "/Applications/Xcode14_3_1.app"
 
 # Mixins
 .only_any_v_tags:
