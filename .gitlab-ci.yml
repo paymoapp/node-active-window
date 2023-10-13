@@ -3,7 +3,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_DEPTH: 50
   MSVS_VERSION: 2019
-  XCODE_TOOLS: "/Library/Developer/CommandLineTools14.3.1"
+  XCODE_TOOLS: "/Application/Xcode14_3_1.app"
 
 # Mixins
 .only_any_v_tags:
@@ -61,9 +61,9 @@ build-addon-windows:
     - .job_build_addon
   tags:
     - win
-  before_script:
-    - npm config set msvs_version $MSVS_VERSION
-    - npm ci --ignore-scripts
+  hooks:
+    pre_get_sources_script:
+      - npm config set msvs_version $MSVS_VERSION
 
 build-addon-mac-x64:
   extends:
@@ -71,9 +71,9 @@ build-addon-mac-x64:
     - .job_build_addon
   tags:
     - osx
-  before_script:
-    - sudo xcode-select -s $XCODE_TOOLS
-    - npm ci --ignore-scripts
+  hooks:
+    pre_get_sources_script:
+      - sudo xcode-select -s $XCODE_TOOLS
   script:
     - npm run prebuild -- --arch x64 --upload $PREBUILD_GH_TOKEN
 
@@ -83,9 +83,9 @@ build-addon-mac-arm64:
     - .job_build_addon
   tags:
     - osx
-  before_script:
-    - sudo xcode-select -s $XCODE_TOOLS
-    - npm ci --ignore-scripts
+  hooks:
+    pre_get_sources_script:
+      - sudo xcode-select -s $XCODE_TOOLS
   script:
     - npm run prebuild -- --arch arm64 --upload $PREBUILD_GH_TOKEN
 
