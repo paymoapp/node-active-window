@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.6](https://github.com/paymoapp/node-active-window/compare/v2.0.5...v2.0.6) (2023-10-20)
+
+
+### Bug Fixes
+
+* **module.linux:** Fixed sigsegv when _NET_WM_PID is not set ([04246f0](https://github.com/paymoapp/node-active-window/commit/04246f0710fff6ed8dfa903e0d0f1a206e1bbcc7))
+
+
+### Build/CI
+
+* **gitlab:** Set global location for msvs_version config parameter ([562ee4a](https://github.com/paymoapp/node-active-window/commit/562ee4ad0654ced8b67592740ded269a460438e5))
+
 ### [2.0.5](https://github.com/paymoapp/node-active-window/compare/v2.0.4...v2.0.5) (2023-10-13)
 
 
