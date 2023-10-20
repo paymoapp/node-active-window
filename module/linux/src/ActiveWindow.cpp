@@ -103,14 +103,18 @@ namespace PaymoActiveWindow {
 		Atom property = XInternAtom(this->display, "_NET_ACTIVE_WINDOW", true);
 		Window root = DefaultRootWindow(this->display);
 
-		Atom _actualType;
-		int _actualFormat;
-		unsigned long _itemsCount;
-		unsigned long _bytes;
+		Atom actualType;
+		int actualFormat;
+		unsigned long itemsCount;
+		unsigned long bytes;
 
 		unsigned char* prop;
 
-		if (XGetWindowProperty(this->display, root, property, 0, sizeof(Window), false, XA_WINDOW, &_actualType, &_actualFormat, &_itemsCount, &_bytes, &prop) != Success) {
+		if (XGetWindowProperty(this->display, root, property, 0, sizeof(Window), false, XA_WINDOW, &actualType, &actualFormat, &itemsCount, &bytes, &prop) != Success) {
+			return None;
+		}
+
+		if (actualFormat == 0) {
 			return None;
 		}
 
@@ -169,14 +173,18 @@ namespace PaymoActiveWindow {
 	pid_t ActiveWindow::getWindowPid(Window win) {
 		Atom property = XInternAtom(this->display, "_NET_WM_PID", true);
 
-		Atom _actualType;
-		int _actualFormat;
-		unsigned long _itemsCount;
-		unsigned long _bytes;
+		Atom actualType;
+		int actualFormat;
+		unsigned long itemsCount;
+		unsigned long bytes;
 
 		unsigned char* prop;
 
-		if (XGetWindowProperty(this->display, win, property, 0, sizeof(pid_t), false, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &_bytes, &prop) != Success) {
+		if (XGetWindowProperty(this->display, win, property, 0, sizeof(pid_t), false, XA_CARDINAL, &actualType, &actualFormat, &itemsCount, &bytes, &prop) != Success) {
+			return -1;
+		}
+
+		if (actualFormat == 0) {
 			return -1;
 		}
 
@@ -266,9 +274,9 @@ namespace PaymoActiveWindow {
 	std::string ActiveWindow::getWindowIcon(Window win) {
 		Atom property = XInternAtom(this->display, "_NET_WM_ICON", true);
 
-		Atom _actualType;
-		int _actualFormat;
-		unsigned long _itemsCount;
+		Atom actualType;
+		int actualFormat;
+		unsigned long itemsCount;
 		unsigned long bytes;
 		unsigned char* prop;
 
@@ -277,16 +285,16 @@ namespace PaymoActiveWindow {
 		int offset = 0;
 
 		do {
-			if (XGetWindowProperty(this->display, win, property, offset, 1, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+			if (XGetWindowProperty(this->display, win, property, offset, 1, 0, XA_CARDINAL, &actualType, &actualFormat, &itemsCount, &bytes, &prop) != Success) {
 				return "";
 			}
-			if (bytes == 0) {
+			if (actualFormat == 0) {
 				return "";
 			}
 			int width = *reinterpret_cast<int*>(prop);
 			XFree(prop);
 
-			if (XGetWindowProperty(this->display, win, property, offset + 1, 1, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+			if (XGetWindowProperty(this->display, win, property, offset + 1, 1, 0, XA_CARDINAL, &actualType, &actualFormat, &itemsCount, &bytes, &prop) != Success) {
 				return "";
 			}
 			int height = *reinterpret_cast<int*>(prop);
@@ -306,13 +314,13 @@ namespace PaymoActiveWindow {
 			offset += size + 2;
 		} while(maxSize * 4 < bytes);
 
-		if (XGetWindowProperty(this->display, win, property, maxSizeOffset, 1, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+		if (XGetWindowProperty(this->display, win, property, maxSizeOffset, 1, 0, XA_CARDINAL, &actualType, &actualFormat, &itemsCount, &bytes, &prop) != Success) {
 			return "";
 		}
 		int width = *reinterpret_cast<int*>(prop);
 		XFree(prop);
 
-		if (XGetWindowProperty(this->display, win, property, maxSizeOffset + 1, 1, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+		if (XGetWindowProperty(this->display, win, property, maxSizeOffset + 1, 1, 0, XA_CARDINAL, &actualType, &actualFormat, &itemsCount, &bytes, &prop) != Success) {
 			return "";
 		}
 		int height = *reinterpret_cast<int*>(prop);
@@ -320,7 +328,7 @@ namespace PaymoActiveWindow {
 
 		int size = width * height;
 
-		if (XGetWindowProperty(this->display, win, property, maxSizeOffset + 2, size, 0, XA_CARDINAL, &_actualType, &_actualFormat, &_itemsCount, &bytes, &prop) != Success) {
+		if (XGetWindowProperty(this->display, win, property, maxSizeOffset + 2, size, 0, XA_CARDINAL, &actualType, &actualFormat, &itemsCount, &bytes, &prop) != Success) {
 			return "";
 		}
 
