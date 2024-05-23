@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/paymoapp/node-active-window/compare/v2.0.6...v2.1.0) (2024-05-23)
+
+
+### Features
+
+* Replaced license with MIT ([fc2c752](https://github.com/paymoapp/node-active-window/commit/fc2c7527feb6b3f8c547d0caf2c56fbb5641c0fc))
+
 ### [2.0.6](https://github.com/paymoapp/node-active-window/compare/v2.0.5...v2.0.6) (2023-10-20)
 
 
