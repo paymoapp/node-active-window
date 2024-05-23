@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/paymoapp/node-active-window/compare/v2.1.0...v2.1.1) (2024-05-23)
+
+
+### Build/CI
+
+* Removed msvs_version from build script ([bf0ebaa](https://github.com/paymoapp/node-active-window/commit/bf0ebaa0f22f4d1df631f4135d9a459d0de61ce5))
+
 ## [2.1.0](https://github.com/paymoapp/node-active-window/compare/v2.0.6...v2.1.0) (2024-05-23)
 
 
