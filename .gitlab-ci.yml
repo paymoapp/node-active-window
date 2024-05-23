@@ -2,7 +2,6 @@ variables:
   ADDON_BUILD_IMAGE: "gitlab.paymoapp.com:5555/envscripts/img-ubuntu-widget-build"
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_DEPTH: 50
-  MSVS_VERSION: 2019
   XCODE_TOOLS: "/Applications/Xcode14_3_1.app"
 
 # Mixins
@@ -61,9 +60,6 @@ build-addon-windows:
     - .job_build_addon
   tags:
     - win
-  hooks:
-    pre_get_sources_script:
-      - npm config --location=global set msvs_version $MSVS_VERSION
 
 build-addon-mac-x64:
   extends:
