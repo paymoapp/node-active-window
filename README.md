@@ -3,7 +3,7 @@
 [![NPM](https://img.shields.io/npm/v/@paymoapp/active-window)](https://www.npmjs.com/package/@paymoapp/active-window)
 [![Typescript](https://img.shields.io/npm/types/@paymoapp/active-window)](https://www.npmjs.com/package/@paymoapp/active-window)
 [![N-API](https://raw.githubusercontent.com/nodejs/abi-stable-node/doc/assets/Node-API%20v6%20Badge.svg)](https://github.com/nodejs/node-addon-api)
-[![License](https://img.shields.io/github/license/paymoapp/node-active-window)](https://www.gnu.org/licenses/gpl-3.0.txt)
+[![License](https://img.shields.io/github/license/paymoapp/node-active-window)](https://raw.githubusercontent.com/paymoapp/node-active-window/refs/heads/master/LICENSE)
 
 NodeJS library using native modules to get the active window and some metadata (including the application icon) on Windows, MacOS and Linux.
 
